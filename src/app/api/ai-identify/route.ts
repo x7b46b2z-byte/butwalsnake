@@ -132,6 +132,10 @@ function matchSnake(caption: string): any {
   return null; // Not a snake
 }
 
+import axios from 'axios';
+
+// ... existing code down to the POST method ...
+
 export async function POST(req: NextRequest) {
   console.log('HF_TOKEN present:', !!HF_TOKEN, 'prefix:', HF_TOKEN?.substring(0, 6));
 
@@ -154,31 +158,19 @@ export async function POST(req: NextRequest) {
 
     console.log('Calling HF ViT with image size:', imageBuffer.length);
 
-    // Use ViT for image classification
-    const hfRes = await fetch(
+    // Use axios instead of native fetch for reliable buffer uploading
+    const response = await axios.post(
       'https://api-inference.huggingface.co/models/google/vit-base-patch16-224',
+      imageBuffer,
       {
-        method: 'POST',
         headers: {
           Authorization: `Bearer ${HF_TOKEN}`,
           'Content-Type': 'application/octet-stream',
         },
-        body: imageBuffer,
       }
     );
 
-    const hfText = await hfRes.text();
-    console.log('HF response status:', hfRes.status);
-    console.log('HF raw response:', hfText.substring(0, 300));
-
-    if (!hfRes.ok) {
-      return NextResponse.json(
-        { success: false, error: `Hugging Face API Error: ${hfText}` },
-        { status: 500 }
-      );
-    }
-
-    const hfData = JSON.parse(hfText);
+    const hfData = response.data;
     
     // ViT returns an array of { label: string, score: number }
     // Let's get the top labels
@@ -217,9 +209,9 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (err: any) {
-    console.error('AI Identifier error:', err);
+    console.error('AI Identifier error:', err.response?.data || err.message || err);
     return NextResponse.json(
-      { success: false, error: `Server error: ${err?.message || String(err)}` },
+      { success: false, error: `Server error: ${err.response?.data?.error || err.message || String(err)}` },
       { status: 500 }
     );
   }
