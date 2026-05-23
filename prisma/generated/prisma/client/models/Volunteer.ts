@@ -1240,6 +1240,7 @@ export type VolunteerCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * The data used to create many Volunteers.
    */
   data: Prisma.VolunteerCreateManyInput | Prisma.VolunteerCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1258,6 +1259,7 @@ export type VolunteerCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Exten
    * The data used to create many Volunteers.
    */
   data: Prisma.VolunteerCreateManyInput | Prisma.VolunteerCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

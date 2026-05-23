@@ -1414,6 +1414,7 @@ export type RescueRequestCreateManyArgs<ExtArgs extends runtime.Types.Extensions
    * The data used to create many RescueRequests.
    */
   data: Prisma.RescueRequestCreateManyInput | Prisma.RescueRequestCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1432,6 +1433,7 @@ export type RescueRequestCreateManyAndReturnArgs<ExtArgs extends runtime.Types.E
    * The data used to create many RescueRequests.
    */
   data: Prisma.RescueRequestCreateManyInput | Prisma.RescueRequestCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

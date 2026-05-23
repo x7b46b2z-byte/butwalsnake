@@ -1216,6 +1216,7 @@ export type SnakeSpeciesCreateManyArgs<ExtArgs extends runtime.Types.Extensions.
    * The data used to create many SnakeSpecies.
    */
   data: Prisma.SnakeSpeciesCreateManyInput | Prisma.SnakeSpeciesCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1234,6 +1235,7 @@ export type SnakeSpeciesCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Ex
    * The data used to create many SnakeSpecies.
    */
   data: Prisma.SnakeSpeciesCreateManyInput | Prisma.SnakeSpeciesCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
