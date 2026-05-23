@@ -1,6 +1,54 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+
+async function sendTelegramAlert(rescue: any) {
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
+    console.warn('Telegram credentials not set. Skipping volunteer alert.');
+    return;
+  }
+
+  const mapLink = `https://www.google.com/maps/search/?api=1&query=${rescue.lat},${rescue.lng}`;
+  const addressText = rescue.lat ? `[${rescue.address}](${mapLink})` : rescue.address;
+
+  const message = `
+🚨 *NEW SNAKE RESCUE EMERGENCY* 🚨
+
+👤 *Reporter:* ${rescue.name}
+📞 *Phone:* [${rescue.phone}](tel:${rescue.phone})
+📍 *Municipality:* ${rescue.municipality}
+🏠 *Address/Landmark:* ${addressText}
+📝 *Notes:* ${rescue.notes || 'No extra notes provided.'}
+⏱️ *Time:* ${new Date().toLocaleString('en-US', { timeZone: 'Asia/Kathmandu' })}
+
+⚠️ *Please reply in the group if you are responding to this incident!*
+  `.trim();
+
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: message,
+        parse_mode: 'Markdown',
+        disable_web_page_preview: false,
+      }),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error('Failed to send Telegram alert:', errText);
+    } else {
+      console.log('Telegram alert sent successfully to group.');
+    }
+  } catch (error) {
+    console.error('Error sending Telegram alert:', error);
+  }
+}
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -45,6 +93,9 @@ export async function POST(req: NextRequest) {
         priority: 'HIGH',
       },
     });
+
+    // Fire and forget the Telegram alert so it doesn't block the user's response
+    sendTelegramAlert(rescue);
 
     return NextResponse.json({ success: true, data: rescue }, { status: 201 });
   } catch (error) {
