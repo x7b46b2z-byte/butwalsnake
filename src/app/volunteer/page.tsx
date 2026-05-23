@@ -111,14 +111,16 @@ export default function VolunteerPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-20">
             {activeVolunteers.map((v, i) => (
               <motion.div key={v.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="glass-card rounded-2xl p-6 border border-white/10 hover:border-emerald-500/30 transition-all text-center">
-                <div className="w-24 h-24 mx-auto bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-400 font-bold text-4xl relative mb-4 border-2 border-white/5">
+                <div className="w-full h-56 mx-auto bg-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-400 font-bold text-6xl relative mb-5 border border-white/10 overflow-hidden shadow-inner">
                   {v.imageUrl ? (
-                    <img src={v.imageUrl} alt={v.name} className="w-full h-full rounded-full object-cover" />
+                    <img src={v.imageUrl} alt={v.name} className="w-full h-full object-cover" />
                   ) : (
                     v.name.charAt(0).toUpperCase()
                   )}
                   {v.isAvailableNow && (
-                    <div className="absolute bottom-1 right-1 w-5 h-5 bg-emerald-500 border-4 border-[#121f22] rounded-full" title="Available for Rescue Now" />
+                    <div className="absolute top-3 right-3 px-3 py-1 bg-emerald-500 text-black text-xs font-bold rounded-full shadow-lg border border-emerald-400" title="Available for Rescue Now">
+                      Available Now
+                    </div>
                   )}
                 </div>
                 <h3 className="text-white font-bold text-xl mb-1">{v.name}</h3>
