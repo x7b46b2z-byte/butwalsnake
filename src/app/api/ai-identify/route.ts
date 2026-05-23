@@ -1,107 +1,221 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const SYSTEM_PROMPT = `You are an expert herpetologist specializing in snakes found in Nepal, particularly in the Rupandehi district (Butwal, Tilottama, Siddharthanagar, Devdaha areas). 
-Analyze the uploaded image and respond ONLY with a valid JSON object (no markdown, no code fences, no explanation).
+const HF_TOKEN = process.env.HF_TOKEN;
 
-If it IS a snake image, respond with exactly this structure:
-{"identified":true,"name":"Common Name","scientificName":"Scientific Name","dangerLevel":"HIGHLY VENOMOUS","dangerScore":9,"description":"Description here.","firstAidSteps":["Step 1","Step 2","Step 3"],"doNots":["Do not 1","Do not 2"],"localPresence":"Common in Rupandehi","confidence":"High"}
+// Known snake species with detailed info for Rupandehi / Nepal region
+const SNAKE_DATABASE: Record<string, any> = {
+  'king cobra': {
+    name: 'King Cobra',
+    scientificName: 'Ophiophagus hannah',
+    dangerLevel: 'HIGHLY VENOMOUS',
+    dangerScore: 10,
+    description: 'The world\'s longest venomous snake, reaching up to 5.5m. Recognized by its hood and olive-brown scales. Found in forests and agricultural areas of Rupandehi.',
+    firstAidSteps: [
+      'Call emergency immediately — 112 or Butwal Snake Rescuers',
+      'Keep the victim completely still — movement spreads venom faster',
+      'Immobilize and keep the bitten limb at or below heart level',
+      'Remove watches, rings, tight clothing near the bite area',
+      'Rush to nearest hospital with anti-venom (BP Koirala, Lumbini Zone)',
+    ],
+    doNots: ['Do NOT cut the wound or suck venom', 'Do NOT apply tourniquet', 'Do NOT give alcohol or medication', 'Do NOT use ice or cold water'],
+    localPresence: 'Rare in Rupandehi',
+  },
+  'cobra': {
+    name: 'Indian Cobra (Nag)',
+    scientificName: 'Naja naja',
+    dangerLevel: 'HIGHLY VENOMOUS',
+    dangerScore: 9,
+    description: 'Iconic spectacled cobra common across Nepal\'s terai including Rupandehi. Identifiable by its spectacle hood marking. Highly venomous neurotoxic venom.',
+    firstAidSteps: [
+      'Call 112 or Butwal Snake Rescuers immediately',
+      'Keep victim calm and completely still',
+      'Immobilize the bitten limb — splint if possible',
+      'Mark swelling boundary with pen to track spread',
+      'Transport urgently to hospital — anti-venom available',
+    ],
+    doNots: ['Do NOT cut wound or suck venom', 'Do NOT apply tourniquet', 'Do NOT apply herbs or home remedies', 'Do NOT let victim walk'],
+    localPresence: 'Very Common in Rupandehi',
+  },
+  'krait': {
+    name: 'Common Krait',
+    scientificName: 'Bungarus caeruleus',
+    dangerLevel: 'HIGHLY VENOMOUS',
+    dangerScore: 9,
+    description: 'Extremely dangerous nocturnal snake. Black and white banded pattern. Bite is often painless, making it deceptively dangerous. Causes respiratory failure.',
+    firstAidSteps: [
+      'Treat as extreme emergency even if bite feels painless',
+      'Call 112 immediately — respiratory failure can occur in hours',
+      'Keep victim lying down, do not allow walking',
+      'Monitor breathing continuously',
+      'Rush to hospital — anti-venom is critical',
+    ],
+    doNots: ['Do NOT ignore painless bites at night', 'Do NOT let victim sleep untreated', 'Do NOT apply tourniquet', 'Do NOT cut wound'],
+    localPresence: 'Common in Rupandehi',
+  },
+  'rat snake': {
+    name: 'Oriental Rat Snake (Dhaman)',
+    scientificName: 'Ptyas mucosa',
+    dangerLevel: 'NON-VENOMOUS',
+    dangerScore: 1,
+    description: 'Large, fast-moving non-venomous snake. Very common in Rupandehi. Excellent rodent predator and beneficial to farmers. Can grow up to 2m.',
+    firstAidSteps: [
+      'Wash bite area thoroughly with soap and water for 10 minutes',
+      'Apply antiseptic to prevent infection',
+      'Get tetanus shot if not updated in 5 years',
+      'Monitor for any allergic reaction',
+      'Contact Butwal Snake Rescuers for safe relocation',
+    ],
+    doNots: ['Do NOT kill the snake — it is beneficial', 'Do NOT panic — bite is non-venomous', 'Do NOT apply herbs or mud on wound'],
+    localPresence: 'Very Common in Rupandehi',
+  },
+  'python': {
+    name: 'Indian Rock Python',
+    scientificName: 'Python molurus',
+    dangerLevel: 'NON-VENOMOUS',
+    dangerScore: 2,
+    description: 'Protected species. Non-venomous but powerful constrictor. Large heavy-bodied snake found near water bodies and forests in Rupandehi.',
+    firstAidSteps: [
+      'Do NOT try to remove python by pulling — relax the body',
+      'Unwind from the tail end if constricting',
+      'Wash bite wound with soap and water',
+      'Seek tetanus shot',
+      'Call Butwal Snake Rescuers for relocation — it is a protected species',
+    ],
+    doNots: ['Do NOT kill — protected by Wildlife Act', 'Do NOT pull python away — may cause injury', 'Do NOT keep as pet'],
+    localPresence: 'Occasional in Rupandehi',
+  },
+  'green snake': {
+    name: 'Green Vine Snake',
+    scientificName: 'Ahaetulla nasuta',
+    dangerLevel: 'MILDLY VENOMOUS',
+    dangerScore: 3,
+    description: 'Slender bright green snake. Rear-fanged with mild venom — not considered dangerous to healthy adults. Common in shrubs and trees.',
+    firstAidSteps: [
+      'Wash bite with soap and water',
+      'Apply antiseptic',
+      'Monitor for swelling or allergic reaction',
+      'Seek medical advice if symptoms worsen',
+    ],
+    doNots: ['Do NOT apply tourniquet', 'Do NOT cut wound', 'Do NOT ignore if allergic reaction develops'],
+    localPresence: 'Common in Rupandehi',
+  },
+  'default': {
+    name: 'Unidentified Snake',
+    scientificName: 'Unknown species',
+    dangerLevel: 'HIGHLY VENOMOUS',
+    dangerScore: 7,
+    description: 'Species could not be precisely identified. Treat all unknown snakebites as potentially venomous until confirmed by a medical professional.',
+    firstAidSteps: [
+      'Treat as VENOMOUS until proven otherwise',
+      'Call Butwal Snake Rescuers or 112 immediately',
+      'Keep victim calm and still',
+      'Immobilize bitten limb below heart level',
+      'Rush to nearest hospital with anti-venom',
+    ],
+    doNots: ['Do NOT wait for symptoms to appear', 'Do NOT cut wound or suck venom', 'Do NOT apply tourniquet', 'Do NOT ignore bite'],
+    localPresence: 'Unknown',
+  },
+};
 
-dangerLevel must be exactly one of: HIGHLY VENOMOUS, MILDLY VENOMOUS, NON-VENOMOUS
+function matchSnake(caption: string): any {
+  const lower = caption.toLowerCase();
 
-If it is NOT a snake image:
-{"identified":false,"name":"Not a Snake","scientificName":"","dangerLevel":"NON-VENOMOUS","dangerScore":0,"description":"The uploaded image does not appear to contain a snake.","firstAidSteps":[],"doNots":[],"localPresence":"N/A","confidence":"N/A"}`;
+  if (lower.includes('king cobra')) return SNAKE_DATABASE['king cobra'];
+  if (lower.includes('cobra') || lower.includes('naja') || lower.includes('hooded')) return SNAKE_DATABASE['cobra'];
+  if (lower.includes('krait') || lower.includes('banded black white')) return SNAKE_DATABASE['krait'];
+  if (lower.includes('python') || lower.includes('boa') || lower.includes('constrictor')) return SNAKE_DATABASE['python'];
+  if (lower.includes('rat snake') || lower.includes('dhaman') || lower.includes('racer')) return SNAKE_DATABASE['rat snake'];
+  if (lower.includes('green') && lower.includes('snake')) return SNAKE_DATABASE['green snake'];
+  if (lower.includes('vine')) return SNAKE_DATABASE['green snake'];
+  if (lower.includes('snake') || lower.includes('serpent') || lower.includes('reptile')) return SNAKE_DATABASE['default'];
+
+  return null; // Not a snake
+}
 
 export async function POST(req: NextRequest) {
-  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+  console.log('HF_TOKEN present:', !!HF_TOKEN, 'prefix:', HF_TOKEN?.substring(0, 6));
 
-  // Debug: log whether key exists
-  console.log('GEMINI_API_KEY present:', !!GEMINI_API_KEY);
-  console.log('GEMINI_API_KEY prefix:', GEMINI_API_KEY?.substring(0, 8));
-
-  if (!GEMINI_API_KEY || GEMINI_API_KEY === 'YOUR_GEMINI_KEY_HERE') {
+  if (!HF_TOKEN || HF_TOKEN === 'YOUR_HF_TOKEN_HERE') {
     return NextResponse.json(
-      { success: false, error: 'GEMINI_API_KEY is not set in environment variables.' },
+      { success: false, error: 'HF_TOKEN is not configured in environment variables.' },
       { status: 500 }
     );
   }
 
   try {
-    const body = await req.json();
-    const { imageBase64, mimeType } = body;
+    const { imageBase64, mimeType } = await req.json();
 
     if (!imageBase64 || !mimeType) {
       return NextResponse.json({ success: false, error: 'No image provided.' }, { status: 400 });
     }
 
-    console.log('Calling Gemini API with mimeType:', mimeType, 'imageBase64 length:', imageBase64.length);
+    // Convert base64 to binary buffer
+    const imageBuffer = Buffer.from(imageBase64, 'base64');
 
-    const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`,
+    console.log('Calling HF BLIP with image size:', imageBuffer.length);
+
+    // Use BLIP image captioning to describe the image
+    const hfRes = await fetch(
+      'https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-large',
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                { text: SYSTEM_PROMPT },
-                {
-                  inline_data: {
-                    mime_type: mimeType,
-                    data: imageBase64,
-                  },
-                },
-              ],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.1,
-            maxOutputTokens: 1024,
-            responseMimeType: 'application/json',
-          },
-        }),
+        headers: {
+          Authorization: `Bearer ${HF_TOKEN}`,
+          'Content-Type': 'application/octet-stream',
+        },
+        body: imageBuffer,
       }
     );
 
-    const responseText = await geminiRes.text();
-    console.log('Gemini HTTP status:', geminiRes.status);
-    console.log('Gemini raw response (first 500 chars):', responseText.substring(0, 500));
+    const hfText = await hfRes.text();
+    console.log('HF response status:', hfRes.status);
+    console.log('HF raw response:', hfText.substring(0, 300));
 
-    if (!geminiRes.ok) {
-      let errDetail = responseText;
-      try { errDetail = JSON.parse(responseText)?.error?.message || responseText; } catch {}
-      console.error('Gemini API error detail:', errDetail);
+    if (!hfRes.ok) {
       return NextResponse.json(
-        { success: false, error: `Gemini API Error: ${errDetail}` },
+        { success: false, error: `Hugging Face API Error: ${hfText}` },
         { status: 500 }
       );
     }
 
-    const data = JSON.parse(responseText);
-    const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const hfData = JSON.parse(hfText);
+    const caption: string = Array.isArray(hfData)
+      ? hfData[0]?.generated_text || ''
+      : hfData?.generated_text || '';
 
-    console.log('Raw Gemini text:', rawText.substring(0, 300));
+    console.log('Image caption from BLIP:', caption);
 
-    // Clean markdown code fences if present
-    const cleaned = rawText
-      .replace(/```json\n?/gi, '')
-      .replace(/```\n?/g, '')
-      .trim();
+    const snakeInfo = matchSnake(caption);
 
-    let parsed;
-    try {
-      parsed = JSON.parse(cleaned);
-    } catch (parseErr) {
-      console.error('JSON parse failed. Raw text was:', rawText);
-      return NextResponse.json(
-        { success: false, error: `AI returned invalid JSON. Raw: ${rawText.substring(0, 200)}` },
-        { status: 500 }
-      );
+    if (!snakeInfo) {
+      return NextResponse.json({
+        success: true,
+        result: {
+          identified: false,
+          name: 'Not a Snake',
+          scientificName: '',
+          dangerLevel: 'NON-VENOMOUS',
+          dangerScore: 0,
+          description: `The AI described this image as: "${caption}". It does not appear to contain a snake. Please upload a clear photo of a snake.`,
+          firstAidSteps: [],
+          doNots: [],
+          localPresence: 'N/A',
+          confidence: 'High',
+        },
+      });
     }
 
-    return NextResponse.json({ success: true, result: parsed });
+    return NextResponse.json({
+      success: true,
+      result: {
+        identified: true,
+        ...snakeInfo,
+        aiCaption: caption,
+        confidence: 'Medium',
+      },
+    });
   } catch (err: any) {
-    console.error('Unhandled AI Identifier error:', err);
+    console.error('AI Identifier error:', err);
     return NextResponse.json(
       { success: false, error: `Server error: ${err?.message || String(err)}` },
       { status: 500 }
