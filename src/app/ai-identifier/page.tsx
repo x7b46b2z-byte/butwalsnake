@@ -70,7 +70,7 @@ export default function AIIdentifierPage() {
       });
       const data = await res.json();
       if (data.success) setResult(data.result);
-      else setError(data.error || 'Analysis failed. Please try again.');
+      else setError(data.error || 'Analysis failed.');
     } catch {
       setError('Network error. Please try again.');
     } finally {
