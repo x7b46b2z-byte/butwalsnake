@@ -26,10 +26,10 @@ type Zone = {
 };
 
 const INITIAL_ZONES: Zone[] = [
-  { name: 'Butwal', nameNe: 'बुटवल', lat: 27.7082, lng: 83.4651, radius: 6000, status: 'busy', responders: 0 },
-  { name: 'Tilottama', nameNe: 'तिलोत्तमा', lat: 27.6185, lng: 83.4678, radius: 7000, status: 'busy', responders: 0 },
-  { name: 'Siddharthanagar', nameNe: 'सिद्धार्थनगर', lat: 27.5098, lng: 83.4502, radius: 5500, status: 'busy', responders: 0 },
-  { name: 'Devdaha', nameNe: 'देवदहा', lat: 27.6710, lng: 83.5658, radius: 6500, status: 'busy', responders: 0 },
+  { name: 'Butwal', nameNe: 'बुटवल', lat: 27.7006, lng: 83.4532, radius: 5500, status: 'busy', responders: 0 },
+  { name: 'Tilottama', nameNe: 'तिलोत्तमा', lat: 27.6623, lng: 83.5232, radius: 6000, status: 'busy', responders: 0 },
+  { name: 'Siddharthanagar', nameNe: 'सिद्धार्थनगर', lat: 27.5038, lng: 83.4540, radius: 5000, status: 'busy', responders: 0 },
+  { name: 'Devdaha', nameNe: 'देवदहा', lat: 27.6060, lng: 83.5760, radius: 5500, status: 'busy', responders: 0 },
 ];
 
 export default function CoverageMap() {
@@ -68,8 +68,8 @@ export default function CoverageMap() {
     fixLeafletIcons();
 
     const map = L.map(mapContainer.current, {
-      center: [27.61, 83.48],
-      zoom: 11,
+      center: [27.6100, 83.5100],
+      zoom: 10,
       scrollWheelZoom: false,
     });
 

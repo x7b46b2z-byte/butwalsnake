@@ -22,6 +22,7 @@ export const Navbar: React.FC = () => {
     { href: '/', label: lang === 'en' ? 'Home' : 'गृह' },
     { href: '/emergency', label: lang === 'en' ? 'Emergency' : 'आपत' },
     { href: '/snakes', label: lang === 'en' ? 'Snakes' : 'सर्प' },
+    { href: '/ai-identifier', label: lang === 'en' ? '🤖 AI ID' : 'AI पहिचान' },
     { href: '/firstaid', label: lang === 'en' ? 'First Aid' : 'प्राथमिक' },
     { href: '/gallery', label: lang === 'en' ? 'Gallery' : 'तस्बिर' },
     { href: '/blog', label: lang === 'en' ? 'Stories' : 'समाचार' },
