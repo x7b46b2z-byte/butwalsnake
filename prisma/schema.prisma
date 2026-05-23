@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated/prisma/client"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   // "SUPER_ADMIN", "RESCUE_COORDINATOR", "VOLUNTEER_MANAGER", "CONTENT_MANAGER"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RescueRequest {
+  id             String   @id @default(uuid())
+  name           String
+  phone          String
+  municipality   String   // "Butwal", "Tilottama", "Siddharthanagar", "Devdaha", "Other"
+  address        String
+  lat            Float
+  lng            Float
+  photoUrl       String?
+  videoUrl       String?
+  stillPresent   String   // "Yes", "No"
+  notes          String?
+  status         String   // "PENDING", "ASSIGNED", "IN_PROGRESS", "RESCUED", "CLOSED"
+  priority       String   // "LOW", "MEDIUM", "HIGH", "EMERGENCY"
+  assignedToId   String?
+  assignedToName String?
+  rescueNotes    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Volunteer {
+  id                    String   @id @default(uuid())
+  name                  String
+  address               String
+  municipality          String
+  contact               String
+  experience            String   // "Beginner", "Intermediate", "Advanced"
+  vehicle               String   // "None", "Bicycle", "Motorcycle", "Car", "Other"
+  availableTime         String
+  skills                String
+  emergencyAvailability String   // "Yes", "No"
+  status                String   // "PENDING", "APPROVED", "REJECTED"
+  assignedZone          String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model SnakeSpecies {
+  id                  String   @id @default(uuid())
+  name                String   // e.g. "Indian Cobra"
+  scientificName      String   // e.g. "Naja naja"
+  nepaliName          String   // e.g. "Gokhara"
+  venomous            Boolean  // true or false
+  habitat             String
+  identificationGuide String
+  behavior            String
+  safetyTips          String
+  emergencyAdvice     String
+  imageUrl            String
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model BlogPost {
+  id        String   @id @default(uuid())
+  title     String
+  slug      String   @unique
+  content   String
+  category  String   // "Myths", "Stories", "Monsoon", "Education", "Prevention"
+  author    String
+  tags      String   // Comma separated tags e.g. "cobra,bite,prevention"
+  status    String   // "DRAFT", "PUBLISHED"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model GalleryItem {
+  id        String   @id @default(uuid())
+  imageUrl  String
+  caption   String
+  category  String   // "RESCUE", "RELEASE", "AWARENESS", "SCHOOL"
+  location  String?
+  createdAt DateTime @default(now())
+}

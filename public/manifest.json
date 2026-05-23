@@ -1,0 +1,35 @@
+{
+  "name": "Butwal Snake Rescuers",
+  "short_name": "BSR",
+  "description": "24/7 Snake Rescue & Wildlife Awareness — Rupandehi District, Nepal",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f1a1c",
+  "theme_color": "#2ECC71",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["emergency", "health", "social"],
+  "lang": "en",
+  "shortcuts": [
+    {
+      "name": "Emergency Rescue",
+      "short_name": "Emergency",
+      "description": "Request snake rescue now",
+      "url": "/emergency",
+      "icons": [{ "src": "/favicon.ico", "sizes": "any" }]
+    },
+    {
+      "name": "First Aid",
+      "short_name": "First Aid",
+      "description": "Snakebite first aid guide",
+      "url": "/firstaid",
+      "icons": [{ "src": "/favicon.ico", "sizes": "any" }]
+    }
+  ]
+}
