@@ -152,11 +152,11 @@ export async function POST(req: NextRequest) {
     // Convert base64 to binary buffer
     const imageBuffer = Buffer.from(imageBase64, 'base64');
 
-    console.log('Calling HF BLIP with image size:', imageBuffer.length);
+    console.log('Calling HF ViT with image size:', imageBuffer.length);
 
-    // Use BLIP image captioning to describe the image
+    // Use ViT for image classification
     const hfRes = await fetch(
-      'https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-large',
+      'https://api-inference.huggingface.co/models/google/vit-base-patch16-224',
       {
         method: 'POST',
         headers: {
@@ -179,11 +179,13 @@ export async function POST(req: NextRequest) {
     }
 
     const hfData = JSON.parse(hfText);
-    const caption: string = Array.isArray(hfData)
-      ? hfData[0]?.generated_text || ''
-      : hfData?.generated_text || '';
+    
+    // ViT returns an array of { label: string, score: number }
+    // Let's get the top labels
+    const labels = Array.isArray(hfData) ? hfData.map((item: any) => item.label).join(', ') : '';
+    console.log('Image labels from ViT:', labels);
 
-    console.log('Image caption from BLIP:', caption);
+    const caption = labels; // Use labels as caption for matchSnake
 
     const snakeInfo = matchSnake(caption);
 
