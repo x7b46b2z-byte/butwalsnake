@@ -4,7 +4,7 @@ import { db } from '@/lib/db';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, contact, address, municipality, experience, vehicle, availableTime, skills, emergencyAvailability } = body;
+    const { name, contact, address, municipality, experience, vehicle, availableTime, skills, emergencyAvailability, imageUrl, assignedZone, isAvailableNow, status } = body;
 
     if (!name || !contact) {
       return NextResponse.json({ success: false, error: 'name and contact are required' }, { status: 400 });
@@ -21,7 +21,10 @@ export async function POST(req: NextRequest) {
         availableTime: availableTime || 'Anytime',
         skills: skills || '',
         emergencyAvailability: emergencyAvailability || 'Yes',
-        status: 'PENDING',
+        status: status || 'PENDING',
+        imageUrl: imageUrl || null,
+        assignedZone: assignedZone || null,
+        isAvailableNow: isAvailableNow || false,
       },
     });
 

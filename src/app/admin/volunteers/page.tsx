@@ -26,7 +26,7 @@ export default function AdminVolunteersPage() {
   const [addError, setAddError] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<Volunteer | null>(null);
-  const BLANK_VOLUNTEER = { name: '', contact: '', address: '', municipality: 'Butwal', experience: 'Beginner', vehicle: 'None', availableTime: '', skills: '', emergencyAvailability: 'Yes', status: 'PENDING', assignedZone: '', imageUrl: '', isAvailableNow: false };
+  const BLANK_VOLUNTEER = { name: '', contact: '', address: '', municipality: 'Butwal', experience: 'Beginner', vehicle: 'None', availableTime: '', skills: '', emergencyAvailability: 'Yes', status: 'APPROVED', assignedZone: '', imageUrl: '', isAvailableNow: true };
   const [addForm, setAddForm] = useState(BLANK_VOLUNTEER);
 
   const fetchVolunteers = useCallback(async () => { setLoading(true); try { const res = await fetch('/api/volunteer'); const data = await res.json(); if (data.success) setVolunteers(data.data); } finally { setLoading(false); } }, []);
@@ -202,21 +202,26 @@ export default function AdminVolunteersPage() {
                       {['Beginner', 'Intermediate', 'Advanced'].map(p => <option key={p} value={p} className="bg-[#0f1a1c]">{p}</option>)}
                     </select>
                   </div>
-                  <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Vehicle</label>
-                    <select value={addForm.vehicle} onChange={e => setAddForm(p => ({ ...p, vehicle: e.target.value }))} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 appearance-none">
-                      {['None', 'Bicycle', 'Motorcycle', 'Car', 'Other'].map(v => <option key={v} value={v} className="bg-[#0f1a1c]">{v}</option>)}
-                    </select>
-                  </div>
-                  <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Emergency Availability</label>
-                    <select value={addForm.emergencyAvailability} onChange={e => setAddForm(p => ({ ...p, emergencyAvailability: e.target.value }))} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 appearance-none">
-                      <option value="Yes" className="bg-[#0f1a1c]">Yes</option>
-                      <option value="No" className="bg-[#0f1a1c]">No</option>
-                    </select>
-                  </div>
+                  <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Assigned Zone</label><input value={addForm.assignedZone} onChange={e => setAddForm(p => ({ ...p, assignedZone: e.target.value }))} placeholder="e.g. Ward 12" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
+                  <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Profile Image URL</label><input value={addForm.imageUrl} onChange={e => setAddForm(p => ({ ...p, imageUrl: e.target.value }))} placeholder="https://..." className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
                 </div>
                 <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Address *</label><input value={addForm.address} onChange={e => setAddForm(p => ({ ...p, address: e.target.value }))} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
-                <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Available Time *</label><input value={addForm.availableTime} onChange={e => setAddForm(p => ({ ...p, availableTime: e.target.value }))} placeholder="e.g. Weekends, Evenings" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
-                <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Skills *</label><input value={addForm.skills} onChange={e => setAddForm(p => ({ ...p, skills: e.target.value }))} placeholder="e.g. First aid, Snake handling" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Available Time *</label><input value={addForm.availableTime} onChange={e => setAddForm(p => ({ ...p, availableTime: e.target.value }))} placeholder="e.g. Weekends, Evenings" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
+                  <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Skills *</label><input value={addForm.skills} onChange={e => setAddForm(p => ({ ...p, skills: e.target.value }))} placeholder="e.g. First aid, Snake handling" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
+                  <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Status</label>
+                    <select value={addForm.status} onChange={e => setAddForm(p => ({ ...p, status: e.target.value }))} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 appearance-none">
+                      {STATUS_OPTS.map(s => <option key={s} value={s} className="bg-[#0f1a1c]">{s}</option>)}
+                    </select>
+                  </div>
+                  <div className="flex items-center mt-6">
+                    <label className="flex items-center gap-2 text-white font-medium cursor-pointer text-sm">
+                      <input type="checkbox" checked={addForm.isAvailableNow} onChange={e => setAddForm(p => ({ ...p, isAvailableNow: e.target.checked }))} className="w-5 h-5 accent-emerald-500 rounded" /> 
+                      Available for rescues right now
+                    </label>
+                  </div>
+                </div>
                 
                 {addError && <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-2">{addError}</p>}
                 <button onClick={handleAdd} disabled={adding} className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-bold py-3 rounded-xl flex items-center justify-center gap-2">
