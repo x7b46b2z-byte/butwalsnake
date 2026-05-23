@@ -75,14 +75,17 @@ export default function SnakesPage() {
         </div>
 
         {/* AI Banner */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass-card rounded-2xl p-5 border border-purple-500/30 mb-8 flex flex-col sm:flex-row items-center gap-4">
-          <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center shrink-0"><Zap className="w-6 h-6 text-purple-400" /></div>
+        <motion.a href="/ai-identifier" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass-card rounded-2xl p-5 border border-emerald-500/30 mb-8 flex flex-col sm:flex-row items-center gap-4 hover:border-emerald-500/60 transition-colors group cursor-pointer bg-emerald-500/5">
+          <div className="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center shrink-0"><Zap className="w-6 h-6 text-emerald-400 group-hover:scale-110 transition-transform" /></div>
           <div className="flex-1 text-center sm:text-left">
-            <h3 className="text-white font-bold mb-1">🤖 AI Snake Identifier — Coming Soon</h3>
-            <p className="text-gray-400 text-sm">Upload a photo and our AI will identify the species, danger level, and first aid steps.</p>
+            <h3 className="text-white font-bold mb-1 flex items-center gap-2 justify-center sm:justify-start">
+              🤖 AI Snake Identifier
+              <span className="bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">New</span>
+            </h3>
+            <p className="text-gray-400 text-sm">Upload a photo and our AI will identify the species, danger level, and first aid steps instantly.</p>
           </div>
-          <div className="bg-purple-500/20 border border-purple-500/40 text-purple-400 text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap">In Development</div>
-        </motion.div>
+          <div className="bg-emerald-500 text-black font-bold text-sm px-5 py-2.5 rounded-xl whitespace-nowrap group-hover:bg-emerald-400 transition-colors">Try Now</div>
+        </motion.a>
 
         <p className="text-gray-500 text-sm mb-6">{loading ? 'Loading...' : `${filtered.length} species found`}</p>
 
