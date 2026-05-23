@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Users, CheckCircle, Loader2, Shield, Star, Zap } from 'lucide-react';
 import Navbar from '@/components/Navbar';
