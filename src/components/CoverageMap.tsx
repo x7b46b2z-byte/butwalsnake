@@ -25,24 +25,48 @@ type Zone = {
   responders: number;
 };
 
-const zones: Zone[] = [
-  { name: 'Butwal', nameNe: 'बुटवल', lat: 27.7082, lng: 83.4651, radius: 6000, status: 'active', responders: 4 },
-  { name: 'Tilottama', nameNe: 'तिलोत्तमा', lat: 27.6185, lng: 83.4678, radius: 7000, status: 'active', responders: 3 },
-  { name: 'Siddharthanagar', nameNe: 'सिद्धार्थनगर', lat: 27.5098, lng: 83.4502, radius: 5500, status: 'active', responders: 2 },
-  { name: 'Devdaha', nameNe: 'देवदहा', lat: 27.6710, lng: 83.5658, radius: 6500, status: 'busy', responders: 1 },
+const INITIAL_ZONES: Zone[] = [
+  { name: 'Butwal', nameNe: 'बुटवल', lat: 27.7082, lng: 83.4651, radius: 6000, status: 'busy', responders: 0 },
+  { name: 'Tilottama', nameNe: 'तिलोत्तमा', lat: 27.6185, lng: 83.4678, radius: 7000, status: 'busy', responders: 0 },
+  { name: 'Siddharthanagar', nameNe: 'सिद्धार्थनगर', lat: 27.5098, lng: 83.4502, radius: 5500, status: 'busy', responders: 0 },
+  { name: 'Devdaha', nameNe: 'देवदहा', lat: 27.6710, lng: 83.5658, radius: 6500, status: 'busy', responders: 0 },
 ];
 
 export default function CoverageMap() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const [selectedZone, setSelectedZone] = useState<Zone | null>(null);
+  const [zones, setZones] = useState<Zone[]>(INITIAL_ZONES);
+  const [totalActive, setTotalActive] = useState(0);
 
   useEffect(() => {
-    if (!mapContainer.current || mapRef.current) return;
+    fetch('/api/volunteer?status=APPROVED')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          const vols = data.data;
+          let activeCount = 0;
+          const updatedZones = INITIAL_ZONES.map(zone => {
+            const zVols = vols.filter((v: any) => v.municipality === zone.name || (v.assignedZone && v.assignedZone.includes(zone.name)));
+            const activeVols = zVols.filter((v: any) => v.isAvailableNow);
+            activeCount += activeVols.length;
+            return {
+              ...zone,
+              responders: zVols.length,
+              status: activeVols.length > 0 ? 'active' : 'busy',
+            } as Zone;
+          });
+          setZones(updatedZones);
+          setTotalActive(activeCount);
+        }
+      });
+  }, []);
+
+  useEffect(() => {
+    if (!mapContainer.current || mapRef.current || zones === INITIAL_ZONES) return;
 
     fixLeafletIcons();
 
-    // Center map around Rupandehi District coordinates (Butwal/Tilottama centroid)
     const map = L.map(mapContainer.current, {
       center: [27.61, 83.48],
       zoom: 11,
@@ -51,18 +75,13 @@ export default function CoverageMap() {
 
     mapRef.current = map;
 
-    // Load OpenStreetMap tiles and apply custom dark style via CSS class in container
-    const tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+    // Use ESRI Satellite Imagery
+    const tileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
       maxZoom: 18,
     });
 
     tileLayer.addTo(map);
-
-    // Apply dark filter to tile container for an extra cohesive deep-slate aesthetic
-    tileLayer.on('tileload', (e) => {
-      e.tile.classList.add('leaflet-dark-filter');
-    });
 
     // Add layers for each coverage zone
     zones.forEach((zone) => {
@@ -122,7 +141,7 @@ export default function CoverageMap() {
         mapRef.current = null;
       }
     };
-  }, []);
+  }, [zones]);
 
   return (
     <div className="w-full flex flex-col lg:flex-row gap-6 items-stretch font-manrope">
@@ -133,9 +152,9 @@ export default function CoverageMap() {
 
       {/* Info Sidebar Pane */}
       <div className="lg:w-80 flex flex-col gap-4">
-        <div className="p-6 rounded-2xl glass border border-white/5 space-y-4 flex-grow">
+        <div className="p-6 rounded-2xl glass border border-white/5 space-y-4 flex-grow bg-slate-dark/90 backdrop-blur-md">
           <h3 className="text-lg font-bold text-white font-poppins border-b border-white/5 pb-2">
-            Coverage Districts
+            Coverage Municipalities
           </h3>
           <p className="text-sm text-gray-400">
             Click any pulsing zone marker on the map to inspect nearby rescuer density and dispatch status.
@@ -172,10 +191,10 @@ export default function CoverageMap() {
         </div>
 
         {/* Floating Quick Stats Card */}
-        <div className="p-5 rounded-2xl glass border border-white/5 flex items-center justify-between bg-primary/5">
+        <div className="p-5 rounded-2xl glass border border-white/5 flex items-center justify-between bg-primary/10">
           <div>
-            <span className="text-xs text-gray-400 font-medium block">Total Responders</span>
-            <span className="text-2xl font-black text-primary font-mono block">10 Active</span>
+            <span className="text-xs text-gray-400 font-medium block">Ready Responders</span>
+            <span className="text-2xl font-black text-primary font-mono block">{totalActive} Online</span>
           </div>
           <div className="text-right">
             <span className="text-xs text-gray-400 font-medium block">Avg Dispatch Time</span>

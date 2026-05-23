@@ -141,9 +141,9 @@ export default function Home() {
             {t('responseTime')}
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="flex overflow-x-auto gap-6 pb-6 snap-x snap-mandatory hide-scrollbar">
           {activeRescuers.map((rescuer) => (
-            <div key={rescuer.name} className="p-6 rounded-2xl glass-card relative overflow-hidden border border-white/5 hover:border-white/10 transition-all">
+            <div key={rescuer.name} className="min-w-[320px] md:w-1/3 shrink-0 snap-center p-6 rounded-2xl glass-card relative overflow-hidden border border-white/5 hover:border-white/10 transition-all">
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center border border-white/10 overflow-hidden shrink-0 text-emerald-400 font-bold text-xl">
