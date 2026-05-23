@@ -23,11 +23,26 @@ const CoverageMap = dynamic(() => import('@/components/CoverageMap'), {
 export default function Home() {
   const { t } = useApp();
 
-  const activeRescuers = [
-    { name: 'Sushil Thapa', status: 'available', zone: 'Butwal Zone A', experience: 'Advanced' },
-    { name: 'Pratima Rijal', status: 'available', zone: 'Tilottama North', experience: 'Intermediate' },
-    { name: 'Rohan Chaudhary', status: 'busy', zone: 'Siddharthanagar', experience: 'Intermediate' },
-  ];
+  const [activeRescuers, setActiveRescuers] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    fetch('/api/volunteer?status=APPROVED')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          // Map to match the existing UI or just use the data
+          const mapped = data.data.slice(0, 3).map((v: any) => ({
+            name: v.name,
+            status: v.isAvailableNow ? 'available' : 'busy',
+            zone: v.assignedZone || v.municipality,
+            experience: v.experience,
+            imageUrl: v.imageUrl,
+          }));
+          setActiveRescuers(mapped);
+        }
+      })
+      .catch(err => console.error(err));
+  }, []);
 
   return (
     <div className="flex flex-col w-full bg-background overflow-x-hidden font-manrope">
@@ -130,13 +145,22 @@ export default function Home() {
           {activeRescuers.map((rescuer) => (
             <div key={rescuer.name} className="p-6 rounded-2xl glass-card relative overflow-hidden border border-white/5 hover:border-white/10 transition-all">
               <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-lg font-bold text-white font-poppins">{rescuer.name}</h3>
-                  <span className="text-xs text-primary font-semibold uppercase tracking-wider mt-0.5 block">{rescuer.experience} Handler</span>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center border border-white/10 overflow-hidden shrink-0 text-emerald-400 font-bold text-xl">
+                    {rescuer.imageUrl ? (
+                      <img src={rescuer.imageUrl} alt={rescuer.name} className="w-full h-full object-cover" />
+                    ) : (
+                      rescuer.name.charAt(0).toUpperCase()
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white font-poppins">{rescuer.name}</h3>
+                    <span className="text-xs text-primary font-semibold uppercase tracking-wider mt-0.5 block">{rescuer.experience} Handler</span>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-1.5">
+                <div className="flex items-center space-x-1.5 shrink-0">
                   <span className={`w-2.5 h-2.5 rounded-full animate-pulse ${rescuer.status === 'available' ? 'bg-emerald-500' : 'bg-yellow-500'}`}></span>
-                  <span className="text-xs font-bold text-gray-300 uppercase tracking-wide">
+                  <span className="text-xs font-bold text-gray-300 uppercase tracking-wide whitespace-nowrap">
                     {rescuer.status === 'available' ? t('available') : t('busy')}
                   </span>
                 </div>
