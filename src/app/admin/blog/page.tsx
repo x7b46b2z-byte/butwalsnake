@@ -18,17 +18,48 @@ export default function AdminBlogPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<Blog | null>(null);
+  const [showAdd, setShowAdd] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [addError, setAddError] = useState('');
+
+  const BLANK_BLOG = { title: '', slug: '', content: '', category: 'News', author: 'Admin', tags: '', status: 'PUBLISHED' };
+  const [addForm, setAddForm] = useState(BLANK_BLOG);
 
   const fetchBlogs = useCallback(async () => { setLoading(true); try { const res = await fetch('/api/blog?limit=100'); const data = await res.json(); if (data.success) setBlogs(data.data); } finally { setLoading(false); } }, []);
   useEffect(() => { fetchBlogs(); }, [fetchBlogs]);
 
   const filtered = blogs.filter(b => !search || b.title.toLowerCase().includes(search.toLowerCase()) || b.author.toLowerCase().includes(search.toLowerCase()) || b.category.toLowerCase().includes(search.toLowerCase()));
 
+  const handleAdd = async () => {
+    setAddError('');
+    if (!addForm.title || !addForm.content) { setAddError('Title and content are required.'); return; }
+    
+    // Auto-generate slug if empty
+    const submission = { ...addForm };
+    if (!submission.slug) {
+      submission.slug = submission.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    }
+
+    setAdding(true);
+    try {
+      const res = await fetch('/api/blog', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(submission),
+      });
+      const data = await res.json();
+      if (data.success) { setAddForm(BLANK_BLOG); setShowAdd(false); fetchBlogs(); }
+      else setAddError(data.error || 'Failed to add article.');
+    } finally { setAdding(false); }
+  };
+
   return (
     <div className="space-y-6 max-w-7xl">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div><h1 className="text-2xl font-bold text-white">Blog & Content</h1><p className="text-gray-400 text-sm mt-1">{blogs.length} published articles</p></div>
-        <button onClick={fetchBlogs} className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 px-4 py-2 rounded-xl text-sm transition-colors"><RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /> Refresh</button>
+        <div className="flex gap-2">
+          <button onClick={fetchBlogs} className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 px-4 py-2 rounded-xl text-sm transition-colors"><RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} /> Refresh</button>
+          <button onClick={() => setShowAdd(true)} className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black font-bold px-4 py-2 rounded-xl text-sm transition-colors">Add Article</button>
+        </div>
       </div>
 
       <div className="relative max-w-sm"><Search className="absolute left-4 top-3.5 w-4 h-4 text-gray-500" /><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search articles..." className="w-full bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500 text-sm transition-colors" /></div>
@@ -74,6 +105,46 @@ export default function AdminBlogPage() {
                   <span className="flex items-center gap-1.5"><BookOpen className="w-3 h-3" />{readTime(selected.content)} min</span>
                 </div>
                 <div className="text-gray-300 text-sm leading-relaxed space-y-3">{selected.content.split('\n').filter(Boolean).map((p, i) => <p key={i}>{p}</p>)}</div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Add Blog Modal */}
+      <AnimatePresence>
+        {showAdd && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={e => e.target === e.currentTarget && setShowAdd(false)}>
+            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9 }} className="bg-[#0f1a1c] border border-white/10 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between p-6 border-b border-white/5">
+                <h3 className="text-white font-bold text-lg">Add New Article</h3>
+                <button onClick={() => setShowAdd(false)} className="text-gray-500 hover:text-white"><X className="w-5 h-5" /></button>
+              </div>
+              <div className="p-6 space-y-4">
+                <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Title *</label><input value={addForm.title} onChange={e => setAddForm(p => ({ ...p, title: e.target.value }))} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Author</label><input value={addForm.author} onChange={e => setAddForm(p => ({ ...p, author: e.target.value }))} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
+                  <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Category</label>
+                    <select value={addForm.category} onChange={e => setAddForm(p => ({ ...p, category: e.target.value }))} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 appearance-none">
+                      {['News', 'Rescue Story', 'Education', 'Announcement'].map(c => <option key={c} value={c} className="bg-[#0f1a1c]">{c}</option>)}
+                    </select>
+                  </div>
+                  <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Tags (comma separated)</label><input value={addForm.tags} onChange={e => setAddForm(p => ({ ...p, tags: e.target.value }))} placeholder="e.g. python, rescue, tips" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
+                  <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Status</label>
+                    <select value={addForm.status} onChange={e => setAddForm(p => ({ ...p, status: e.target.value }))} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 appearance-none">
+                      <option value="DRAFT" className="bg-[#0f1a1c]">Draft</option>
+                      <option value="PUBLISHED" className="bg-[#0f1a1c]">Published</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Content * (Supports Markdown)</label><textarea value={addForm.content} onChange={e => setAddForm(p => ({ ...p, content: e.target.value }))} rows={8} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 resize-y font-mono text-sm" /></div>
+
+                {addError && <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-2">{addError}</p>}
+                <button onClick={handleAdd} disabled={adding} className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-bold py-3 rounded-xl flex items-center justify-center gap-2">
+                  {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Publish Article'}
+                </button>
               </div>
             </motion.div>
           </motion.div>

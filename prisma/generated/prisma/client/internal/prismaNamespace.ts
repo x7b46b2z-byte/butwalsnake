@@ -942,6 +942,8 @@ export const VolunteerScalarFieldEnum = {
   emergencyAvailability: 'emergencyAvailability',
   status: 'status',
   assignedZone: 'assignedZone',
+  imageUrl: 'imageUrl',
+  isAvailableNow: 'isAvailableNow',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

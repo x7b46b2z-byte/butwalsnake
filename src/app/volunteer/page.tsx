@@ -24,6 +24,19 @@ export default function VolunteerPage() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  const [activeVolunteers, setActiveVolunteers] = useState<any[]>([]);
+  const [loadingVolunteers, setLoadingVolunteers] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/volunteer?status=APPROVED')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) setActiveVolunteers(data.data);
+        setLoadingVolunteers(false);
+      })
+      .catch(() => setLoadingVolunteers(false));
+  }, []);
 
   const update = (k: string, v: string) => { setForm(p => ({ ...p, [k]: v })); setError(''); };
 
@@ -77,7 +90,7 @@ export default function VolunteerPage() {
         </div>
 
         <h2 className="text-2xl font-bold text-white mb-6">Why Volunteer With Us?</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-20">
           {BENEFITS.map(({ icon: Icon, title, desc, color }, i) => (
             <motion.div key={title} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }} className="glass-card rounded-xl p-5 border border-white/10 flex items-start gap-4">
               <div className={`w-10 h-10 bg-${color}-500/20 rounded-xl flex items-center justify-center shrink-0`}><Icon className={`w-5 h-5 text-${color}-400`} /></div>
@@ -85,6 +98,43 @@ export default function VolunteerPage() {
             </motion.div>
           ))}
         </div>
+
+        {/* Volunteer Directory */}
+        <h2 className="text-3xl font-bold text-white mb-2 text-center">Meet Our Rescuers</h2>
+        <p className="text-gray-400 text-center mb-10 max-w-2xl mx-auto">The brave individuals dedicating their time to save both humans and snakes across Rupandehi.</p>
+
+        {loadingVolunteers ? (
+          <div className="flex justify-center py-10"><Loader2 className="w-8 h-8 animate-spin text-emerald-400" /></div>
+        ) : activeVolunteers.length === 0 ? (
+          <div className="text-center py-10 text-gray-500">No active volunteers found.</div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-20">
+            {activeVolunteers.map((v, i) => (
+              <motion.div key={v.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="glass-card rounded-2xl p-6 border border-white/10 hover:border-emerald-500/30 transition-all text-center">
+                <div className="w-24 h-24 mx-auto bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-400 font-bold text-4xl relative mb-4 border-2 border-white/5">
+                  {v.imageUrl ? (
+                    <img src={v.imageUrl} alt={v.name} className="w-full h-full rounded-full object-cover" />
+                  ) : (
+                    v.name.charAt(0).toUpperCase()
+                  )}
+                  {v.isAvailableNow && (
+                    <div className="absolute bottom-1 right-1 w-5 h-5 bg-emerald-500 border-4 border-[#121f22] rounded-full" title="Available for Rescue Now" />
+                  )}
+                </div>
+                <h3 className="text-white font-bold text-xl mb-1">{v.name}</h3>
+                <p className="text-emerald-400 text-sm font-semibold mb-3">{v.assignedZone || v.municipality}</p>
+                <div className="inline-flex flex-col items-center gap-1.5 text-xs text-gray-400">
+                  <span className="bg-white/5 px-3 py-1.5 rounded-full border border-white/10 font-mono text-gray-300">{v.contact}</span>
+                  {v.isAvailableNow ? (
+                    <span className="text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full mt-1">🟢 Available Now</span>
+                  ) : (
+                    <span className="text-gray-500 bg-white/5 px-3 py-1 rounded-full mt-1">🟡 Offline</span>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
 
         <div className="glass-card rounded-3xl p-8 border border-white/10">
           <h2 className="text-2xl font-bold text-white mb-2">Volunteer Application</h2>

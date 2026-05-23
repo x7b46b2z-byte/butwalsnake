@@ -54,6 +54,8 @@ model Volunteer {
   emergencyAvailability String   // "Yes", "No"
   status                String   // "PENDING", "APPROVED", "REJECTED"
   assignedZone          String?
+  imageUrl              String?
+  isAvailableNow        Boolean  @default(false)
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 }

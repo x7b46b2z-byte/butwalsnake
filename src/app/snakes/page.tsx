@@ -95,7 +95,11 @@ export default function SnakesPage() {
                 <motion.div key={snake.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9 }} transition={{ delay: i * 0.05 }}
                   onClick={() => setSelected(snake)} className="glass-card rounded-2xl overflow-hidden border border-white/10 hover:border-emerald-500/40 cursor-pointer group transition-all hover:scale-[1.02]">
                   <div className="relative h-44 bg-gradient-to-br from-emerald-900/40 to-slate-900/40 overflow-hidden">
-                    <div className="absolute inset-0 flex items-center justify-center text-7xl opacity-30 group-hover:opacity-50 transition-opacity select-none">🐍</div>
+                    {snake.imageUrl ? (
+                      <div className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style={{ backgroundImage: `url(${snake.imageUrl})` }} />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center text-7xl opacity-30 group-hover:opacity-50 transition-opacity select-none">🐍</div>
+                    )}
                     {snake.venomous && (
                       <div className="absolute top-3 right-3 bg-red-500/90 text-white text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> VENOMOUS</div>
                     )}
@@ -126,8 +130,12 @@ export default function SnakesPage() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={e => e.target === e.currentTarget && setSelected(null)}>
             <motion.div initial={{ scale: 0.9, y: 20, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.9, y: 20, opacity: 0 }} className="bg-[#0f1a1c] border border-white/10 rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
               <div className="relative h-48 bg-gradient-to-br from-emerald-900/60 to-slate-900/60">
-                <div className="absolute inset-0 flex items-center justify-center text-9xl opacity-30">🐍</div>
-                <button onClick={() => setSelected(null)} className="absolute top-4 right-4 w-8 h-8 bg-black/40 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors"><X className="w-4 h-4" /></button>
+                {selected.imageUrl ? (
+                  <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${selected.imageUrl})` }} />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center text-9xl opacity-30">🐍</div>
+                )}
+                <button onClick={() => setSelected(null)} className="absolute top-4 right-4 w-8 h-8 bg-black/40 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors z-10"><X className="w-4 h-4" /></button>
                 {selected.venomous ? (
                   <div className="absolute bottom-4 left-4 bg-red-500/90 text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> VENOMOUS</div>
                 ) : (

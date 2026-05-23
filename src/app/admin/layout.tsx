@@ -16,6 +16,7 @@ import {
   X,
   ChevronRight,
   Bell,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -23,6 +24,7 @@ const NAV_ITEMS = [
   { href: '/admin/rescues', label: 'Rescue Requests', icon: AlertCircle },
   { href: '/admin/volunteers', label: 'Volunteers', icon: Users },
   { href: '/admin/species', label: 'Snake Species', icon: Bug },
+  { href: '/admin/gallery', label: 'Gallery', icon: ImageIcon },
   { href: '/admin/blog', label: 'Blog & Content', icon: BookOpen },
 ];
 
