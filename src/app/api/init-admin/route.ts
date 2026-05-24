@@ -9,23 +9,30 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const hash = await bcrypt.hash('rescue@99', 10);
+  const hash = await bcrypt.hash('mnbvcxzas', 10);
 
-  // Try to update the old admin
-  const updated = await db.user.updateMany({
+  // Try to update any existing admin (old email or old username)
+  const updated1 = await db.user.updateMany({
     where: { email: 'admin@butwalsnakerescue.org' },
-    data: { email: 'bsr_admin', password: hash, name: 'BSR Admin' }
+    data: { email: 'kaati', password: hash, name: 'BSR Admin' }
   });
 
-  if (updated.count === 0) {
-    // Create fresh if no old user
+  const updated2 = await db.user.updateMany({
+    where: { email: 'bsr_admin' },
+    data: { email: 'kaati', password: hash, name: 'BSR Admin' }
+  });
+
+  const totalUpdated = updated1.count + updated2.count;
+
+  if (totalUpdated === 0) {
+    // No existing user found, create fresh
     await db.user.upsert({
-      where: { email: 'bsr_admin' },
+      where: { email: 'kaati' },
       update: { password: hash, name: 'BSR Admin' },
-      create: { email: 'bsr_admin', password: hash, name: 'BSR Admin', role: 'SUPER_ADMIN' }
+      create: { email: 'kaati', password: hash, name: 'BSR Admin', role: 'SUPER_ADMIN' }
     });
-    return NextResponse.json({ success: true, action: 'created', username: 'bsr_admin' });
+    return NextResponse.json({ success: true, action: 'created', username: 'kaati' });
   }
 
-  return NextResponse.json({ success: true, action: 'updated', count: updated.count, username: 'bsr_admin' });
+  return NextResponse.json({ success: true, action: 'updated', count: totalUpdated, username: 'kaati' });
 }
