@@ -2,26 +2,26 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldAlert, Eye, EyeOff, Loader2, Lock, Mail } from 'lucide-react';
+import { ShieldAlert, Eye, EyeOff, Loader2, Lock, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [form, setForm] = useState({ username: '', password: '' });
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.email || !form.password) { setError('Please enter email and password.'); return; }
+    if (!form.username || !form.password) { setError('Please enter username and password.'); return; }
     setLoading(true);
     setError('');
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ username: form.username, password: form.password }),
       });
       const data = await res.json();
       if (data.success) {
@@ -63,16 +63,16 @@ export default function AdminLoginPage() {
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="text-sm text-gray-400 font-medium mb-2 block">Email Address</label>
+              <label className="text-sm text-gray-400 font-medium mb-2 block">Username</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-3.5 w-4 h-4 text-gray-500" />
+                <User className="absolute left-4 top-3.5 w-4 h-4 text-gray-500" />
                 <input
-                  type="email"
-                  value={form.email}
-                  onChange={e => { setForm(p => ({ ...p, email: e.target.value })); setError(''); }}
-                  placeholder="admin@butwalsnakerescue.org"
+                  type="text"
+                  value={form.username}
+                  onChange={e => { setForm(p => ({ ...p, username: e.target.value })); setError(''); }}
+                  placeholder="Enter your username"
                   className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500 transition-colors"
-                  autoComplete="email"
+                  autoComplete="username"
                 />
               </div>
             </div>
@@ -110,10 +110,6 @@ export default function AdminLoginPage() {
               {loading ? 'Signing In...' : 'Sign In to Dashboard'}
             </button>
           </form>
-
-          <div className="mt-6 pt-6 border-t border-white/10 text-center">
-            <p className="text-gray-600 text-xs">Default credentials: admin@butwalsnakerescue.org / admin123</p>
-          </div>
         </div>
 
         <p className="text-center text-gray-600 text-xs mt-6">

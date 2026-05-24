@@ -7,13 +7,14 @@ const JWT_SECRET = process.env.JWT_SECRET || 'bsr-admin-secret-2024';
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password } = await req.json();
+    const { username, password } = await req.json();
 
-    if (!email || !password) {
-      return NextResponse.json({ success: false, error: 'Email and password are required' }, { status: 400 });
+    if (!username || !password) {
+      return NextResponse.json({ success: false, error: 'Username and password are required' }, { status: 400 });
     }
 
-    const user = await db.user.findUnique({ where: { email } });
+    // username is stored in the email column
+    const user = await db.user.findUnique({ where: { email: username } });
     if (!user) {
       return NextResponse.json({ success: false, error: 'Invalid credentials' }, { status: 401 });
     }
