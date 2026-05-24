@@ -158,9 +158,9 @@ export async function POST(req: NextRequest) {
 
     console.log('Calling HF ViT with image size:', imageBuffer.length);
 
-    // Use axios instead of native fetch for reliable buffer uploading
+    // Use router.huggingface.co to bypass ISP DNS block on api-inference
     const response = await axios.post(
-      'https://api-inference.huggingface.co/models/google/vit-base-patch16-224',
+      'https://router.huggingface.co/hf-inference/models/google/vit-base-patch16-224',
       imageBuffer,
       {
         headers: {
