@@ -158,11 +158,9 @@ export async function POST(req: NextRequest) {
 
     console.log('Calling HF ViT with image size:', imageBuffer.length);
 
-    // Use axios and route through a proxy to bypass local ISP blocks (ENOTFOUND)
-    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent('https://api-inference.huggingface.co/models/google/vit-base-patch16-224');
-    
+    // Use axios instead of native fetch for reliable buffer uploading
     const response = await axios.post(
-      proxyUrl,
+      'https://api-inference.huggingface.co/models/google/vit-base-patch16-224',
       imageBuffer,
       {
         headers: {
