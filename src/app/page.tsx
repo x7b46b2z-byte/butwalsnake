@@ -179,7 +179,7 @@ export default function Home() {
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
           <h2 className="text-3xl sm:text-4xl font-bold font-poppins text-white">Our Operational Coverage Area</h2>
           <p className="text-sm sm:text-base text-gray-400 leading-relaxed">
-            We provide swift, professional wildlife rescue across four major municipalities in Rupandehi District.
+            We provide swift, professional wildlife rescue across five major municipalities in Rupandehi District.
           </p>
         </div>
         <CoverageMap />

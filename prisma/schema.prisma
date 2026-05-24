@@ -85,6 +85,7 @@ model BlogPost {
   author    String
   tags      String   // Comma separated tags e.g. "cobra,bite,prevention"
   status    String   // "DRAFT", "PUBLISHED"
+  imageUrl  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

@@ -12,7 +12,7 @@ const PAYMENT_METHODS = [
     id: 'esewa',
     name: 'eSewa',
     color: 'green',
-    emoji: '💚',
+    logo: '/wallets/esewa.png',
     number: '9856034050',
     name_on_account: 'Butwal Snake Rescuers',
     instructions: [
@@ -27,7 +27,7 @@ const PAYMENT_METHODS = [
     id: 'khalti',
     name: 'Khalti',
     color: 'purple',
-    emoji: '💜',
+    logo: '/wallets/khalti.png',
     number: '9856034050',
     name_on_account: 'Butwal Snake Rescuers',
     instructions: [
@@ -42,7 +42,7 @@ const PAYMENT_METHODS = [
     id: 'bank',
     name: 'Bank Transfer',
     color: 'blue',
-    emoji: '🏦',
+    logo: '/wallets/bank.jpg',
     number: 'NIC Asia Bank',
     name_on_account: 'Butwal Snake Rescuers Society',
     instructions: [
@@ -114,7 +114,10 @@ export default function DonatePage() {
             {PAYMENT_METHODS.map(m => (
               <button key={m.id} onClick={() => setActive(m.id)}
                 className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left ${active === m.id ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-white/10 bg-white/5 hover:border-white/20'}`}>
-                <span className="text-3xl">{m.emoji}</span>
+                <div className="w-10 h-10 shrink-0 bg-white rounded-lg flex items-center justify-center overflow-hidden border border-white/20">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={m.logo} alt={m.name} className="w-full h-full object-contain p-1" />
+                </div>
                 <div>
                   <p className={`font-bold ${active === m.id ? 'text-emerald-400' : 'text-white'}`}>{m.name}</p>
                   <p className="text-gray-500 text-xs">{m.number}</p>
@@ -128,7 +131,10 @@ export default function DonatePage() {
           <div className="lg:col-span-3">
             <motion.div key={active} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="glass-card rounded-3xl p-7 border border-white/10 h-full">
               <div className="flex items-center gap-3 mb-6">
-                <span className="text-4xl">{method.emoji}</span>
+                <div className="w-12 h-12 shrink-0 bg-white rounded-xl flex items-center justify-center overflow-hidden border border-white/20">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={method.logo} alt={method.name} className="w-full h-full object-contain p-1.5" />
+                </div>
                 <div>
                   <h3 className="text-white font-bold text-xl">Donate via {method.name}</h3>
                   <p className="text-gray-400 text-sm">{method.name_on_account}</p>

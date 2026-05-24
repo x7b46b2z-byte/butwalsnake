@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { title, slug, content, category, author, tags, status } = body;
+    const { title, slug, content, category, author, tags, status, imageUrl } = body;
 
     if (!title || !slug || !content) {
       return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
@@ -46,6 +46,7 @@ export async function POST(req: NextRequest) {
         author: author || 'Admin',
         tags: tags || '',
         status: status || 'PUBLISHED',
+        imageUrl: imageUrl || null,
       },
     });
 

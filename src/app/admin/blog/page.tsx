@@ -6,7 +6,7 @@ import { BookOpen, Search, RefreshCw, Loader2, X, Clock, User } from 'lucide-rea
 
 interface Blog {
   id: string; title: string; slug: string; content: string;
-  category: string; author: string; tags: string; status: string; createdAt: string;
+  category: string; author: string; tags: string; status: string; imageUrl?: string; createdAt: string;
 }
 
 const TAG_COLORS = ['bg-emerald-500/20 text-emerald-400 border-emerald-500/30', 'bg-blue-500/20 text-blue-400 border-blue-500/30', 'bg-purple-500/20 text-purple-400 border-purple-500/30', 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'];
@@ -22,7 +22,7 @@ export default function AdminBlogPage() {
   const [adding, setAdding] = useState(false);
   const [addError, setAddError] = useState('');
 
-  const BLANK_BLOG = { title: '', slug: '', content: '', category: 'News', author: 'Admin', tags: '', status: 'PUBLISHED' };
+  const BLANK_BLOG = { title: '', slug: '', content: '', category: 'News', author: 'Admin', tags: '', status: 'PUBLISHED', imageUrl: '' };
   const [addForm, setAddForm] = useState(BLANK_BLOG);
 
   const fetchBlogs = useCallback(async () => { setLoading(true); try { const res = await fetch('/api/blog?limit=100'); const data = await res.json(); if (data.success) setBlogs(data.data); } finally { setLoading(false); } }, []);
@@ -68,7 +68,14 @@ export default function AdminBlogPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {filtered.map((blog, i) => (
             <motion.div key={blog.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="glass-card rounded-2xl overflow-hidden border border-white/10 hover:border-white/20 transition-all flex flex-col">
-              <div className="h-36 bg-gradient-to-br from-emerald-900/30 to-slate-900/50 flex items-center justify-center border-b border-white/5"><span className="text-7xl opacity-20">🐍</span></div>
+              <div className="h-36 bg-gradient-to-br from-emerald-900/30 to-slate-900/50 flex items-center justify-center border-b border-white/5 relative overflow-hidden">
+                {blog.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={blog.imageUrl} alt={blog.title} className="w-full h-full object-cover opacity-80 mix-blend-luminosity hover:mix-blend-normal transition-all" />
+                ) : (
+                  <span className="text-7xl opacity-20">🐍</span>
+                )}
+              </div>
               <div className="p-5 flex flex-col flex-1">
                 <div className="flex flex-wrap gap-1.5 mb-3">
                   <span className="text-xs font-semibold px-2 py-0.5 rounded-full border bg-blue-500/20 text-blue-400 border-blue-500/30">{blog.category}</span>
@@ -138,6 +145,8 @@ export default function AdminBlogPage() {
                     </select>
                   </div>
                 </div>
+                
+                <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Featured Image URL (Optional)</label><input value={addForm.imageUrl || ''} onChange={e => setAddForm(p => ({ ...p, imageUrl: e.target.value }))} placeholder="https://example.com/image.jpg" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
 
                 <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Content * (Supports Markdown)</label><textarea value={addForm.content} onChange={e => setAddForm(p => ({ ...p, content: e.target.value }))} rows={8} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 resize-y font-mono text-sm" /></div>
 

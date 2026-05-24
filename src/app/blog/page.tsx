@@ -16,6 +16,7 @@ interface Blog {
   author: string;
   tags: string;
   status: string;
+  imageUrl?: string;
   createdAt: string;
 }
 
@@ -69,8 +70,13 @@ export default function BlogPage() {
             ← Back to Blog
           </button>
           <motion.article initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <div className="h-64 bg-gradient-to-br from-emerald-900/40 to-slate-900/60 rounded-2xl mb-8 flex items-center justify-center border border-white/10">
-              <span className="text-8xl opacity-30">🐍</span>
+            <div className="h-64 bg-gradient-to-br from-emerald-900/40 to-slate-900/60 rounded-2xl mb-8 flex items-center justify-center border border-white/10 relative overflow-hidden">
+              {selectedBlog.imageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={selectedBlog.imageUrl} alt={selectedBlog.title} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-8xl opacity-30">🐍</span>
+              )}
             </div>
             <div className="flex flex-wrap gap-2 mb-4">
               <span className="text-xs font-semibold px-3 py-1 rounded-full border bg-blue-500/20 text-blue-400 border-blue-500/30">
@@ -158,8 +164,13 @@ export default function BlogPage() {
                 className="glass-card rounded-2xl overflow-hidden border border-emerald-500/20 mb-8 cursor-pointer hover:border-emerald-500/50 transition-all group"
               >
                 <div className="flex flex-col md:flex-row">
-                  <div className="md:w-2/5 h-56 md:h-auto bg-gradient-to-br from-emerald-900/60 to-slate-900/60 flex items-center justify-center border-b md:border-b-0 md:border-r border-white/10">
-                    <span className="text-9xl opacity-30">🐍</span>
+                  <div className="md:w-2/5 h-56 md:h-auto bg-gradient-to-br from-emerald-900/60 to-slate-900/60 flex items-center justify-center border-b md:border-b-0 md:border-r border-white/10 relative overflow-hidden">
+                    {filtered[0].imageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={filtered[0].imageUrl} alt={filtered[0].title} className="w-full h-full object-cover mix-blend-luminosity hover:mix-blend-normal transition-all" />
+                    ) : (
+                      <span className="text-9xl opacity-30">🐍</span>
+                    )}
                   </div>
                   <div className="p-8 flex flex-col justify-center">
                     <div className="flex items-center gap-2 mb-3">
@@ -191,8 +202,13 @@ export default function BlogPage() {
                   onClick={() => setSelectedBlog(blog)}
                   className="glass-card rounded-2xl overflow-hidden border border-white/10 hover:border-emerald-500/40 cursor-pointer group transition-all hover:scale-[1.02]"
                 >
-                  <div className="h-44 bg-gradient-to-br from-emerald-900/30 to-slate-900/50 flex items-center justify-center border-b border-white/5">
-                    <span className="text-7xl opacity-20 group-hover:opacity-40 transition-opacity">🐍</span>
+                  <div className="h-44 bg-gradient-to-br from-emerald-900/30 to-slate-900/50 flex items-center justify-center border-b border-white/5 relative overflow-hidden">
+                    {blog.imageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={blog.imageUrl} alt={blog.title} className="w-full h-full object-cover opacity-80 mix-blend-luminosity group-hover:mix-blend-normal transition-all" />
+                    ) : (
+                      <span className="text-7xl opacity-20 group-hover:opacity-40 transition-opacity">🐍</span>
+                    )}
                   </div>
                   <div className="p-5">
                     <div className="flex flex-wrap gap-1.5 mb-3">

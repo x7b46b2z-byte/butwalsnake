@@ -20,16 +20,27 @@ type Zone = {
   nameNe: string;
   lat: number;
   lng: number;
-  radius: number; // in meters
+  polygon: [number, number][]; // Lat, Lng array
   status: 'active' | 'busy';
   responders: number;
 };
 
 const INITIAL_ZONES: Zone[] = [
-  { name: 'Butwal', nameNe: 'बुटवल', lat: 27.7006, lng: 83.4532, radius: 5500, status: 'busy', responders: 0 },
-  { name: 'Tilottama', nameNe: 'तिलोत्तमा', lat: 27.6623, lng: 83.5232, radius: 6000, status: 'busy', responders: 0 },
-  { name: 'Siddharthanagar', nameNe: 'सिद्धार्थनगर', lat: 27.5038, lng: 83.4540, radius: 5000, status: 'busy', responders: 0 },
-  { name: 'Devdaha', nameNe: 'देवदहा', lat: 27.6060, lng: 83.5760, radius: 5500, status: 'busy', responders: 0 },
+  { name: 'Butwal', nameNe: 'बुटवल', lat: 27.7006, lng: 83.4532, 
+    polygon: [[27.732, 83.415], [27.745, 83.468], [27.712, 83.485], [27.675, 83.480], [27.670, 83.422]], 
+    status: 'busy', responders: 0 },
+  { name: 'Tilottama', nameNe: 'तिलोत्तमा', lat: 27.6623, lng: 83.5232, 
+    polygon: [[27.675, 83.480], [27.665, 83.515], [27.580, 83.510], [27.565, 83.450], [27.575, 83.425], [27.670, 83.422]], 
+    status: 'busy', responders: 0 },
+  { name: 'Siddharthanagar', nameNe: 'सिद्धार्थनगर', lat: 27.5038, lng: 83.4540, 
+    polygon: [[27.565, 83.450], [27.550, 83.490], [27.495, 83.485], [27.485, 83.445], [27.500, 83.420], [27.575, 83.425]], 
+    status: 'busy', responders: 0 },
+  { name: 'Devdaha', nameNe: 'देवदहा', lat: 27.6060, lng: 83.5760, 
+    polygon: [[27.712, 83.485], [27.725, 83.610], [27.650, 83.630], [27.580, 83.560], [27.580, 83.510], [27.665, 83.515]], 
+    status: 'busy', responders: 0 },
+  { name: 'Sainamaina', nameNe: 'सैनामैना', lat: 27.6780, lng: 83.3450, 
+    polygon: [[27.710, 83.290], [27.732, 83.415], [27.670, 83.422], [27.655, 83.390], [27.640, 83.295]], 
+    status: 'busy', responders: 0 },
 ];
 
 export default function CoverageMap() {
@@ -85,13 +96,12 @@ export default function CoverageMap() {
 
     // Add layers for each coverage zone
     zones.forEach((zone) => {
-      // Draw coverage radius overlay circle
-      const circle = L.circle([zone.lat, zone.lng], {
-        radius: zone.radius,
+      // Draw coverage polygon overlay
+      const circle = L.polygon(zone.polygon, {
         color: zone.status === 'active' ? '#2ECC71' : '#F1C40F',
         fillColor: zone.status === 'active' ? '#2ECC71' : '#F1C40F',
-        fillOpacity: 0.08,
-        weight: 1.5,
+        fillOpacity: 0.15,
+        weight: 2,
         dashArray: '6, 6',
       }).addTo(map);
 
@@ -115,9 +125,9 @@ export default function CoverageMap() {
       // Connect popup interaction
       const popupContent = `
         <div class="p-3 bg-slate-dark text-white rounded-xl font-manrope min-w-[200px]">
-          <h4 class="text-base font-bold text-primary font-poppins border-b border-white/10 pb-1 mb-2">${zone.name} Zone</h4>
+          <h4 class="text-base font-bold text-primary font-poppins border-b border-white/10 pb-1 mb-2">${zone.name}</h4>
           <p class="text-xs text-gray-300 mb-1"><strong>Active Rescuers:</strong> ${zone.responders} Available</p>
-          <p class="text-xs text-gray-300 mb-2"><strong>Rescue Range:</strong> ${(zone.radius / 1000).toFixed(1)} km</p>
+          <p class="text-xs text-gray-300 mb-2"><strong>Coverage:</strong> Full Municipality</p>
           <div class="flex items-center gap-1.5 mt-1.5">
             <span class="inline-block w-2.5 h-2.5 rounded-full bg-${zone.status === 'active' ? 'emerald' : 'yellow'}-500 animate-pulse"></span>
             <span class="text-xs font-semibold text-gray-200 uppercase">${zone.status === 'active' ? 'High Availability' : 'Limited Coverage'}</span>
@@ -178,7 +188,7 @@ export default function CoverageMap() {
               >
                 <div>
                   <h4 className="font-semibold text-sm font-poppins">{z.name} ({z.nameNe})</h4>
-                  <p className="text-xs text-gray-400 font-manrope">{(z.radius / 1000).toFixed(1)} km radius range</p>
+                  <p className="text-xs text-gray-400 font-manrope">Full Municipal Coverage</p>
                 </div>
                 <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                   z.status === 'active' ? 'bg-primary/20 text-primary border border-primary/10' : 'bg-yellow-500/20 text-yellow-500 border border-yellow-500/10'
