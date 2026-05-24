@@ -136,12 +136,12 @@ import axios from 'axios';
 
 // ... existing code down to the POST method ...
 
-export async function POST(req: NextRequest) {
-  console.log('HF_TOKEN present:', !!HF_TOKEN, 'prefix:', HF_TOKEN?.substring(0, 6));
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-  if (!HF_TOKEN || HF_TOKEN === 'YOUR_HF_TOKEN_HERE') {
+export async function POST(req: NextRequest) {
+  if (!GEMINI_API_KEY || GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY_HERE') {
     return NextResponse.json(
-      { success: false, error: 'HF_TOKEN is not configured in environment variables.' },
+      { success: false, error: 'GEMINI_API_KEY is not configured in environment variables.' },
       { status: 500 }
     );
   }
@@ -153,35 +153,43 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'No image provided.' }, { status: 400 });
     }
 
-    // Convert base64 to binary buffer
-    const imageBuffer = Buffer.from(imageBase64, 'base64');
+    console.log('Calling Gemini 2.5 Flash for image analysis...');
 
-    console.log('Calling HF ViT with image size:', imageBuffer.length);
+    const prompt = `Identify this snake. Reply with ONLY the common species name (e.g., "King Cobra", "Common Krait", "Rat Snake", "Indian Rock Python", "Green Vine Snake"). If you are completely sure it is NOT a snake, reply exactly with "Not a Snake". Keep your answer to 1-3 words maximum.`;
 
-    // Use router.huggingface.co to bypass ISP DNS block on api-inference
+    const payload = {
+      contents: [
+        {
+          parts: [
+            { text: prompt },
+            {
+              inlineData: {
+                mimeType: mimeType,
+                data: imageBase64,
+              },
+            },
+          ],
+        },
+      ],
+    };
+
     const response = await axios.post(
-      'https://router.huggingface.co/hf-inference/models/google/vit-base-patch16-224',
-      imageBuffer,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      payload,
       {
         headers: {
-          Authorization: `Bearer ${HF_TOKEN}`,
-          'Content-Type': 'application/octet-stream',
+          'Content-Type': 'application/json',
         },
       }
     );
 
-    const hfData = response.data;
-    
-    // ViT returns an array of { label: string, score: number }
-    // Let's get the top labels
-    const labels = Array.isArray(hfData) ? hfData.map((item: any) => item.label).join(', ') : '';
-    console.log('Image labels from ViT:', labels);
-
-    const caption = labels; // Use labels as caption for matchSnake
+    const data = response.data;
+    const caption = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+    console.log('Gemini 2.5 Flash raw prediction:', caption);
 
     const snakeInfo = matchSnake(caption);
 
-    if (!snakeInfo) {
+    if (!snakeInfo || caption.toLowerCase().includes('not a snake')) {
       return NextResponse.json({
         success: true,
         result: {
@@ -205,13 +213,13 @@ export async function POST(req: NextRequest) {
         identified: true,
         ...snakeInfo,
         aiCaption: caption,
-        confidence: 'Medium',
+        confidence: 'High',
       },
     });
   } catch (err: any) {
     console.error('AI Identifier error:', err.response?.data || err.message || err);
     return NextResponse.json(
-      { success: false, error: `Server error: ${err.response?.data?.error || err.message || String(err)}` },
+      { success: false, error: `Server error: ${err.response?.data?.error?.message || err.message || String(err)}` },
       { status: 500 }
     );
   }
