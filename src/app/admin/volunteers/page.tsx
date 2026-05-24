@@ -7,9 +7,14 @@ import { Users, Search, RefreshCw, Loader2, CheckCircle, X, Phone, MapPin } from
 interface Volunteer {
   id: string; name: string; contact: string; address: string; municipality: string;
   experience: string; vehicle: string; availableTime: string; skills: string;
-  emergencyAvailability: string; status: string; assignedZone: string | null; 
+  emergencyAvailability: string; status: string; assignedZone: string | null;
   imageUrl: string | null; isAvailableNow: boolean; description?: string | null; createdAt: string;
 }
+
+const MUNICIPALITIES = ['Butwal', 'Tilottama', 'Siddharthanagar', 'Devdaha', 'Other'];
+
+const getMunicipalitiesFromZone = (zone?: string | null) =>
+  zone?.split(/[,;|]/).map(item => item.trim()).filter(Boolean) ?? [];
 
 const STATUS_OPTS = ['PENDING', 'APPROVED', 'REJECTED'];
 const STATUS_COLORS: Record<string, string> = { PENDING: 'text-yellow-400 bg-yellow-500/20 border-yellow-500/30', APPROVED: 'text-emerald-400 bg-emerald-500/20 border-emerald-500/30', REJECTED: 'text-red-400 bg-red-500/20 border-red-500/30' };
@@ -26,7 +31,7 @@ export default function AdminVolunteersPage() {
   const [addError, setAddError] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<Volunteer | null>(null);
-  const BLANK_VOLUNTEER = { name: '', contact: '', address: '', municipality: 'Butwal', experience: 'Beginner', vehicle: 'None', availableTime: '', skills: '', emergencyAvailability: 'Yes', status: 'APPROVED', assignedZone: '', imageUrl: '', isAvailableNow: true, description: '' };
+  const BLANK_VOLUNTEER = { name: '', contact: '', address: '', municipality: 'Butwal', experience: 'Beginner', vehicle: 'None', availableTime: '', skills: '', emergencyAvailability: 'Yes', status: 'APPROVED', assignedZone: 'Butwal', imageUrl: '', isAvailableNow: true, description: '' };
   const [addForm, setAddForm] = useState(BLANK_VOLUNTEER);
 
   const fetchVolunteers = useCallback(async () => { setLoading(true); try { const res = await fetch('/api/volunteer'); const data = await res.json(); if (data.success) setVolunteers(data.data); } finally { setLoading(false); } }, []);
@@ -72,7 +77,13 @@ export default function AdminVolunteersPage() {
 
   const filtered = volunteers.filter(v => {
     if (statusFilter !== 'ALL' && v.status !== statusFilter) return false;
-    if (search) { const q = search.toLowerCase(); return v.name.toLowerCase().includes(q) || v.contact.includes(q) || v.municipality.toLowerCase().includes(q); }
+    if (search) {
+      const q = search.toLowerCase();
+      return v.name.toLowerCase().includes(q)
+        || v.contact.includes(q)
+        || v.municipality.toLowerCase().includes(q)
+        || (v.assignedZone || '').toLowerCase().includes(q);
+    }
     return true;
   });
 
@@ -99,7 +110,10 @@ export default function AdminVolunteersPage() {
                 <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${STATUS_COLORS[v.status]}`}>{v.status}</span>
               </div>
               <h3 className="text-white font-semibold text-base mb-1">{v.name}</h3>
-              <p className="text-gray-500 text-xs mb-3">{v.municipality} · {v.experience} · {v.availableTime}</p>
+              <div className="flex flex-wrap gap-2 items-center text-xs text-gray-500 mb-3">
+                {getMunicipalitiesFromZone(v.assignedZone || v.municipality).map(m => <span key={m} className="bg-white/5 px-2 py-1 rounded-full">{m}</span>)}
+              </div>
+              <p className="text-gray-500 text-xs mb-3">{v.experience} · {v.availableTime}</p>
               <div className="space-y-1.5 text-xs text-gray-400 mb-4">
                 <p className="flex items-center gap-2"><Phone className="w-3 h-3 text-emerald-400" />{v.contact}</p>
                 <p className="flex items-center gap-2"><MapPin className="w-3 h-3 text-yellow-400" />{v.address}</p>
@@ -133,7 +147,7 @@ export default function AdminVolunteersPage() {
                     <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Contact *</label><input value={editForm.contact} onChange={e => setEditForm(p => p ? ({ ...p, contact: e.target.value }) : null)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
                     <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Municipality</label>
                       <select value={editForm.municipality} onChange={e => setEditForm(p => p ? ({ ...p, municipality: e.target.value }) : null)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 appearance-none">
-                        {['Butwal', 'Tilottama', 'Siddharthanagar', 'Devdaha', 'Other'].map(m => <option key={m} value={m} className="bg-[#0f1a1c]">{m}</option>)}
+                        {MUNICIPALITIES.map(m => <option key={m} value={m} className="bg-[#0f1a1c]">{m}</option>)}
                       </select>
                     </div>
                     <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Experience</label>
@@ -141,7 +155,23 @@ export default function AdminVolunteersPage() {
                         {['Beginner', 'Intermediate', 'Advanced'].map(p => <option key={p} value={p} className="bg-[#0f1a1c]">{p}</option>)}
                       </select>
                     </div>
-                    <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Assigned Zone</label><input value={editForm.assignedZone || ''} onChange={e => setEditForm(p => p ? ({ ...p, assignedZone: e.target.value }) : null)} placeholder="e.g. Ward 12" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
+                    <div className="sm:col-span-2"><label className="text-xs text-gray-500 mb-1.5 block font-medium">Assigned Municipalities</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {MUNICIPALITIES.map(m => {
+                          const selected = getMunicipalitiesFromZone(editForm.assignedZone).includes(m);
+                          return (
+                            <button key={m} type="button" onClick={() => setEditForm(p => {
+                              if (!p) return p;
+                              const current = getMunicipalitiesFromZone(p.assignedZone);
+                              const next = current.includes(m) ? current.filter(item => item !== m) : [...current, m];
+                              return { ...p, assignedZone: next.join(', ') };
+                            })} className={`w-full py-2 rounded-xl text-xs border transition-colors ${selected ? 'bg-emerald-500 text-black border-emerald-500' : 'bg-white/5 text-gray-300 border-white/10 hover:border-white/20 hover:text-white'}`}>
+                              {m}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
                     <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Profile Image URL</label><input value={editForm.imageUrl || ''} onChange={e => setEditForm(p => p ? ({ ...p, imageUrl: e.target.value }) : null)} placeholder="https://..." className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
                   </div>
                   <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Address *</label><input value={editForm.address} onChange={e => setEditForm(p => p ? ({ ...p, address: e.target.value }) : null)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
@@ -186,7 +216,7 @@ export default function AdminVolunteersPage() {
                       <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${STATUS_COLORS[selected.status]}`}>{selected.status}</span>
                     </div>
                   </div>
-                  {[['Contact', selected.contact], ['Address', selected.address], ['Municipality', selected.municipality], ['Experience', selected.experience], ['Vehicle', selected.vehicle], ['Available Time', selected.availableTime], ['Emergency Available', selected.emergencyAvailability], ['Assigned Zone', selected.assignedZone || 'Not Assigned'], ['Skills', selected.skills], ['Applied On', new Date(selected.createdAt).toLocaleDateString()]].map(([l, v]) => (
+                  {[['Contact', selected.contact], ['Address', selected.address], ['Municipality', selected.municipality], ['Experience', selected.experience], ['Vehicle', selected.vehicle], ['Available Time', selected.availableTime], ['Emergency Available', selected.emergencyAvailability], ['Assigned Municipalities', selected.assignedZone || 'Not Assigned'], ['Skills', selected.skills], ['Applied On', new Date(selected.createdAt).toLocaleDateString()]].map(([l, v]) => (
                     <div key={l} className="bg-white/5 rounded-xl p-3"><p className="text-gray-500 text-xs mb-1">{l}</p><p className="text-white text-sm">{v}</p></div>
                   ))}
                   {selected.status === 'PENDING' && (
@@ -217,7 +247,7 @@ export default function AdminVolunteersPage() {
                   <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Contact *</label><input value={addForm.contact} onChange={e => setAddForm(p => ({ ...p, contact: e.target.value }))} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
                   <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Municipality</label>
                     <select value={addForm.municipality} onChange={e => setAddForm(p => ({ ...p, municipality: e.target.value }))} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 appearance-none">
-                      {['Butwal', 'Tilottama', 'Siddharthanagar', 'Devdaha', 'Other'].map(m => <option key={m} value={m} className="bg-[#0f1a1c]">{m}</option>)}
+                      {MUNICIPALITIES.map(m => <option key={m} value={m} className="bg-[#0f1a1c]">{m}</option>)}
                     </select>
                   </div>
                   <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Experience</label>
@@ -225,7 +255,22 @@ export default function AdminVolunteersPage() {
                       {['Beginner', 'Intermediate', 'Advanced'].map(p => <option key={p} value={p} className="bg-[#0f1a1c]">{p}</option>)}
                     </select>
                   </div>
-                  <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Assigned Zone</label><input value={addForm.assignedZone} onChange={e => setAddForm(p => ({ ...p, assignedZone: e.target.value }))} placeholder="e.g. Ward 12" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
+                  <div className="sm:col-span-2"><label className="text-xs text-gray-500 mb-1.5 block font-medium">Assigned Municipalities</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {MUNICIPALITIES.map(m => {
+                        const selected = getMunicipalitiesFromZone(addForm.assignedZone).includes(m);
+                        return (
+                          <button key={m} type="button" onClick={() => setAddForm(p => {
+                            const current = getMunicipalitiesFromZone(p.assignedZone);
+                            const next = current.includes(m) ? current.filter(item => item !== m) : [...current, m];
+                            return { ...p, assignedZone: next.join(', ') };
+                          })} className={`w-full py-2 rounded-xl text-xs border transition-colors ${selected ? 'bg-emerald-500 text-black border-emerald-500' : 'bg-white/5 text-gray-300 border-white/10 hover:border-white/20 hover:text-white'}`}>
+                            {m}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                   <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Profile Image URL</label><input value={addForm.imageUrl} onChange={e => setAddForm(p => ({ ...p, imageUrl: e.target.value }))} placeholder="https://..." className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
                 </div>
                 <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Address *</label><input value={addForm.address} onChange={e => setAddForm(p => ({ ...p, address: e.target.value }))} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
