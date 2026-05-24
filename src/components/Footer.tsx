@@ -26,6 +26,7 @@ export const Footer: React.FC = () => {
             <p className="text-sm text-gray-400 leading-relaxed font-manrope">
               Protecting human lives and conserving Rupandehi biodiversity through safe, 24/7 emergency snake rescue, local community education, and snakebite first aid awareness.
             </p>
+            <div className="flex space-x-4 pt-2">
               <a
                 href="https://facebook.com/butwalsnakerescuers"
                 target="_blank"
