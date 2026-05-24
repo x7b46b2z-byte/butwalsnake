@@ -36,7 +36,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const body = await req.json();
     const { 
       status, imageUrl, isAvailableNow, assignedZone,
-      name, contact, address, municipality, experience, vehicle, availableTime, skills, emergencyAvailability
+      name, contact, address, municipality, experience, vehicle, availableTime, skills, emergencyAvailability, description
     } = body;
 
     const dataToUpdate: any = {};
@@ -53,6 +53,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (availableTime !== undefined) dataToUpdate.availableTime = availableTime;
     if (skills !== undefined) dataToUpdate.skills = skills;
     if (emergencyAvailability !== undefined) dataToUpdate.emergencyAvailability = emergencyAvailability;
+    if (description !== undefined) dataToUpdate.description = description;
 
     const updated = await db.volunteer.update({
       where: { id },

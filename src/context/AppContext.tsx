@@ -48,6 +48,26 @@ const translations: TranslationDict = {
     tel1: '9816482570',
     tel2: '9867501942',
     nepalTime: 'Local Time (Nepal)',
+
+    // Contact Page
+    contactTitle: 'Contact Us',
+    contactSub: 'For emergencies, call directly. For general queries, use the form below.',
+    getInTouch: 'GET IN TOUCH',
+    sendMessage: 'Send Us a Message',
+    yourName: 'Your Name *',
+    phone: 'Phone',
+    email: 'Email',
+    subject: 'Subject',
+    message: 'Message *',
+    sendBtn: 'Send Message',
+    sending: 'Sending...',
+    messageSent: 'Message Sent!',
+
+    // Footer
+    coverageAreas: 'Coverage Areas',
+    usefulInfo: 'Useful Information',
+    hotlineContacts: '24/7 Hotline Contacts',
+    designedBy: 'Designed by semicolon victims ;',
   },
   ne: {
     // Navigation
@@ -86,6 +106,26 @@ const translations: TranslationDict = {
     tel1: '९८१६४८२५७०',
     tel2: '९८६७५०१९४२',
     nepalTime: 'स्थानीय समय (नेपाल)',
+
+    // Contact Page
+    contactTitle: 'सम्पर्क गर्नुहोस्',
+    contactSub: 'आपतकालिन अवस्थामा सीधै कल गर्नुहोस्। सामान्य सोधपुछको लागि तलको फारम प्रयोग गर्नुहोस्।',
+    getInTouch: 'सम्पर्कमा रहनुहोस्',
+    sendMessage: 'हामीलाई सन्देश पठाउनुहोस्',
+    yourName: 'तपाईंको नाम *',
+    phone: 'फोन',
+    email: 'इमेल',
+    subject: 'विषय',
+    message: 'सन्देश *',
+    sendBtn: 'सन्देश पठाउनुहोस्',
+    sending: 'पठाउँदै...',
+    messageSent: 'सन्देश पठाइयो!',
+
+    // Footer
+    coverageAreas: 'कभरेज क्षेत्रहरू',
+    usefulInfo: 'उपयोगी जानकारी',
+    hotlineContacts: '२४/७ हटलाइन सम्पर्क',
+    designedBy: 'डिजाइन द्वारा सेमीकोलन पिडित ;',
   }
 };
 
@@ -95,6 +135,8 @@ type AppContextType = {
   t: (key: string) => string;
   isEmergencyBannerOpen: boolean;
   setEmergencyBannerOpen: (val: boolean) => void;
+  activeRescuers: any[];
+  fetchActiveRescuers: () => void;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -102,6 +144,8 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [lang, setLang] = useState<Language>('en');
   const [isEmergencyBannerOpen, setEmergencyBannerOpen] = useState(true);
+  const [activeRescuers, setActiveRescuers] = useState<any[]>([]);
+  const [hasFetchedRescuers, setHasFetchedRescuers] = useState(false);
 
   // Load language preference if set
   useEffect(() => {
@@ -110,6 +154,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setLang(savedLang);
     }
   }, []);
+
+  const fetchActiveRescuers = () => {
+    if (hasFetchedRescuers) return;
+    fetch('/api/volunteer?isAvailableNow=true')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          const mapped = data.data.map((v: any) => ({
+            name: v.name,
+            status: v.isAvailableNow ? 'available' : 'busy',
+            zone: v.assignedZone || v.municipality,
+            experience: v.experience,
+            imageUrl: v.imageUrl,
+            description: v.description,
+          }));
+          setActiveRescuers(mapped);
+          setHasFetchedRescuers(true);
+        }
+      })
+      .catch(err => console.error('Failed to fetch rescuers:', err));
+  };
 
   const toggleLang = () => {
     const newLang = lang === 'en' ? 'ne' : 'en';
@@ -129,6 +194,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         t,
         isEmergencyBannerOpen,
         setEmergencyBannerOpen,
+        activeRescuers,
+        fetchActiveRescuers,
       }}
     >
       {children}

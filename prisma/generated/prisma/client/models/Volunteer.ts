@@ -38,6 +38,7 @@ export type VolunteerMinAggregateOutputType = {
   status: string | null
   assignedZone: string | null
   imageUrl: string | null
+  description: string | null
   isAvailableNow: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -57,6 +58,7 @@ export type VolunteerMaxAggregateOutputType = {
   status: string | null
   assignedZone: string | null
   imageUrl: string | null
+  description: string | null
   isAvailableNow: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -76,6 +78,7 @@ export type VolunteerCountAggregateOutputType = {
   status: number
   assignedZone: number
   imageUrl: number
+  description: number
   isAvailableNow: number
   createdAt: number
   updatedAt: number
@@ -97,6 +100,7 @@ export type VolunteerMinAggregateInputType = {
   status?: true
   assignedZone?: true
   imageUrl?: true
+  description?: true
   isAvailableNow?: true
   createdAt?: true
   updatedAt?: true
@@ -116,6 +120,7 @@ export type VolunteerMaxAggregateInputType = {
   status?: true
   assignedZone?: true
   imageUrl?: true
+  description?: true
   isAvailableNow?: true
   createdAt?: true
   updatedAt?: true
@@ -135,6 +140,7 @@ export type VolunteerCountAggregateInputType = {
   status?: true
   assignedZone?: true
   imageUrl?: true
+  description?: true
   isAvailableNow?: true
   createdAt?: true
   updatedAt?: true
@@ -227,6 +233,7 @@ export type VolunteerGroupByOutputType = {
   status: string
   assignedZone: string | null
   imageUrl: string | null
+  description: string | null
   isAvailableNow: boolean
   createdAt: Date
   updatedAt: Date
@@ -267,6 +274,7 @@ export type VolunteerWhereInput = {
   status?: Prisma.StringFilter<"Volunteer"> | string
   assignedZone?: Prisma.StringNullableFilter<"Volunteer"> | string | null
   imageUrl?: Prisma.StringNullableFilter<"Volunteer"> | string | null
+  description?: Prisma.StringNullableFilter<"Volunteer"> | string | null
   isAvailableNow?: Prisma.BoolFilter<"Volunteer"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Volunteer"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Volunteer"> | Date | string
@@ -286,6 +294,7 @@ export type VolunteerOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   assignedZone?: Prisma.SortOrderInput | Prisma.SortOrder
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  description?: Prisma.SortOrderInput | Prisma.SortOrder
   isAvailableNow?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -308,6 +317,7 @@ export type VolunteerWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.StringFilter<"Volunteer"> | string
   assignedZone?: Prisma.StringNullableFilter<"Volunteer"> | string | null
   imageUrl?: Prisma.StringNullableFilter<"Volunteer"> | string | null
+  description?: Prisma.StringNullableFilter<"Volunteer"> | string | null
   isAvailableNow?: Prisma.BoolFilter<"Volunteer"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Volunteer"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Volunteer"> | Date | string
@@ -327,6 +337,7 @@ export type VolunteerOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   assignedZone?: Prisma.SortOrderInput | Prisma.SortOrder
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  description?: Prisma.SortOrderInput | Prisma.SortOrder
   isAvailableNow?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -352,6 +363,7 @@ export type VolunteerScalarWhereWithAggregatesInput = {
   status?: Prisma.StringWithAggregatesFilter<"Volunteer"> | string
   assignedZone?: Prisma.StringNullableWithAggregatesFilter<"Volunteer"> | string | null
   imageUrl?: Prisma.StringNullableWithAggregatesFilter<"Volunteer"> | string | null
+  description?: Prisma.StringNullableWithAggregatesFilter<"Volunteer"> | string | null
   isAvailableNow?: Prisma.BoolWithAggregatesFilter<"Volunteer"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Volunteer"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Volunteer"> | Date | string
@@ -371,6 +383,7 @@ export type VolunteerCreateInput = {
   status: string
   assignedZone?: string | null
   imageUrl?: string | null
+  description?: string | null
   isAvailableNow?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -390,6 +403,7 @@ export type VolunteerUncheckedCreateInput = {
   status: string
   assignedZone?: string | null
   imageUrl?: string | null
+  description?: string | null
   isAvailableNow?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -409,6 +423,7 @@ export type VolunteerUpdateInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   assignedZone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isAvailableNow?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -428,6 +443,7 @@ export type VolunteerUncheckedUpdateInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   assignedZone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isAvailableNow?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -447,6 +463,7 @@ export type VolunteerCreateManyInput = {
   status: string
   assignedZone?: string | null
   imageUrl?: string | null
+  description?: string | null
   isAvailableNow?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -466,6 +483,7 @@ export type VolunteerUpdateManyMutationInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   assignedZone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isAvailableNow?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -485,6 +503,7 @@ export type VolunteerUncheckedUpdateManyInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   assignedZone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isAvailableNow?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -504,6 +523,7 @@ export type VolunteerCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   assignedZone?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   isAvailableNow?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -523,6 +543,7 @@ export type VolunteerMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   assignedZone?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   isAvailableNow?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -542,6 +563,7 @@ export type VolunteerMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   assignedZone?: Prisma.SortOrder
   imageUrl?: Prisma.SortOrder
+  description?: Prisma.SortOrder
   isAvailableNow?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -567,6 +589,7 @@ export type VolunteerSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   status?: boolean
   assignedZone?: boolean
   imageUrl?: boolean
+  description?: boolean
   isAvailableNow?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -586,6 +609,7 @@ export type VolunteerSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   status?: boolean
   assignedZone?: boolean
   imageUrl?: boolean
+  description?: boolean
   isAvailableNow?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -605,6 +629,7 @@ export type VolunteerSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   status?: boolean
   assignedZone?: boolean
   imageUrl?: boolean
+  description?: boolean
   isAvailableNow?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -624,12 +649,13 @@ export type VolunteerSelectScalar = {
   status?: boolean
   assignedZone?: boolean
   imageUrl?: boolean
+  description?: boolean
   isAvailableNow?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type VolunteerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "address" | "municipality" | "contact" | "experience" | "vehicle" | "availableTime" | "skills" | "emergencyAvailability" | "status" | "assignedZone" | "imageUrl" | "isAvailableNow" | "createdAt" | "updatedAt", ExtArgs["result"]["volunteer"]>
+export type VolunteerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "address" | "municipality" | "contact" | "experience" | "vehicle" | "availableTime" | "skills" | "emergencyAvailability" | "status" | "assignedZone" | "imageUrl" | "description" | "isAvailableNow" | "createdAt" | "updatedAt", ExtArgs["result"]["volunteer"]>
 
 export type $VolunteerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Volunteer"
@@ -648,6 +674,7 @@ export type $VolunteerPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     status: string
     assignedZone: string | null
     imageUrl: string | null
+    description: string | null
     isAvailableNow: boolean
     createdAt: Date
     updatedAt: Date
@@ -1087,6 +1114,7 @@ export interface VolunteerFieldRefs {
   readonly status: Prisma.FieldRef<"Volunteer", 'String'>
   readonly assignedZone: Prisma.FieldRef<"Volunteer", 'String'>
   readonly imageUrl: Prisma.FieldRef<"Volunteer", 'String'>
+  readonly description: Prisma.FieldRef<"Volunteer", 'String'>
   readonly isAvailableNow: Prisma.FieldRef<"Volunteer", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Volunteer", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Volunteer", 'DateTime'>

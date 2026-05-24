@@ -4,8 +4,8 @@ import React from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useApp } from '@/context/AppContext';
-import { Phone, ShieldCheck, HeartHandshake, Eye, BookOpen, AlertCircle } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Phone, ShieldCheck, HeartHandshake, Eye, BookOpen, AlertCircle, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { FloatingWidgets } from '@/components/FloatingWidgets';
@@ -21,28 +21,12 @@ const CoverageMap = dynamic(() => import('@/components/CoverageMap'), {
 });
 
 export default function Home() {
-  const { t } = useApp();
-
-  const [activeRescuers, setActiveRescuers] = React.useState<any[]>([]);
+  const { t, activeRescuers, fetchActiveRescuers } = useApp();
+  const [selectedRescuer, setSelectedRescuer] = React.useState<any>(null);
 
   React.useEffect(() => {
-    fetch('/api/volunteer?status=APPROVED')
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          // Map to match the existing UI or just use the data
-          const mapped = data.data.slice(0, 3).map((v: any) => ({
-            name: v.name,
-            status: v.isAvailableNow ? 'available' : 'busy',
-            zone: v.assignedZone || v.municipality,
-            experience: v.experience,
-            imageUrl: v.imageUrl,
-          }));
-          setActiveRescuers(mapped);
-        }
-      })
-      .catch(err => console.error(err));
-  }, []);
+    fetchActiveRescuers();
+  }, [fetchActiveRescuers]);
 
   return (
     <div className="flex flex-col w-full bg-background overflow-x-hidden font-manrope">
@@ -143,8 +127,13 @@ export default function Home() {
         </div>
         <div className="flex overflow-x-auto gap-6 pb-6 snap-x snap-mandatory hide-scrollbar">
           {activeRescuers.map((rescuer) => (
-            <div key={rescuer.name} className="min-w-[320px] md:w-1/3 shrink-0 snap-center p-6 rounded-2xl glass-card relative overflow-hidden border border-white/5 hover:border-white/10 transition-all">
-              <div className="flex justify-between items-start">
+            <div 
+              key={rescuer.name} 
+              onClick={() => setSelectedRescuer(rescuer)}
+              className="min-w-[320px] md:w-1/3 shrink-0 snap-center p-6 rounded-2xl glass-card relative overflow-hidden border border-white/5 hover:border-white/20 transition-all cursor-pointer group"
+            >
+              <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+              <div className="flex justify-between items-start relative z-10">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center border border-white/10 overflow-hidden shrink-0 text-emerald-400 font-bold text-xl">
                     {rescuer.imageUrl ? (
@@ -165,13 +154,60 @@ export default function Home() {
                   </span>
                 </div>
               </div>
-              <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between text-sm text-gray-400">
+              <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between text-sm text-gray-400 relative z-10">
                 <span>Assigned Sector:</span>
                 <span className="font-bold text-white">{rescuer.zone}</span>
               </div>
             </div>
           ))}
         </div>
+
+        <AnimatePresence>
+          {selectedRescuer && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={(e) => e.target === e.currentTarget && setSelectedRescuer(null)}>
+              <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="bg-[#0f1a1c] border border-white/10 rounded-3xl max-w-md w-full overflow-hidden shadow-2xl relative">
+                <div className="p-6 border-b border-white/5 flex items-center justify-between">
+                  <h3 className="text-white font-bold text-lg">Rescuer Details</h3>
+                  <button onClick={() => setSelectedRescuer(null)} className="text-gray-500 hover:text-white transition-colors">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="p-6 space-y-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-2xl overflow-hidden shrink-0">
+                      {selectedRescuer.imageUrl ? (
+                        <img src={selectedRescuer.imageUrl} alt={selectedRescuer.name} className="w-full h-full object-cover" />
+                      ) : (
+                        selectedRescuer.name.charAt(0).toUpperCase()
+                      )}
+                    </div>
+                    <div>
+                      <h4 className="text-xl font-bold text-white font-poppins">{selectedRescuer.name}</h4>
+                      <p className="text-primary text-sm font-semibold">{selectedRescuer.experience} Handler</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="bg-white/5 rounded-xl p-3">
+                      <p className="text-gray-500 text-xs mb-1 uppercase font-semibold">Coverage Zone</p>
+                      <p className="text-white text-sm">{selectedRescuer.zone}</p>
+                    </div>
+                    <div className="bg-white/5 rounded-xl p-3">
+                      <p className="text-gray-500 text-xs mb-1 uppercase font-semibold">About / Description</p>
+                      <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
+                        {selectedRescuer.description || "This volunteer is highly trained and ready to respond to emergencies. No further description provided."}
+                      </p>
+                    </div>
+                  </div>
+
+                  <a href={`tel:${t('tel1')}`} className="w-full flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-3.5 rounded-xl transition-colors mt-4">
+                    <Phone className="w-4 h-4" /> Dispatch Rescuer
+                  </a>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </section>
 
       {/* 4. COVERAGE MAP */}

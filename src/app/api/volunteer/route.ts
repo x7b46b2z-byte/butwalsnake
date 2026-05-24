@@ -4,7 +4,10 @@ import { db } from '@/lib/db';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, contact, address, municipality, experience, vehicle, availableTime, skills, emergencyAvailability, imageUrl, assignedZone, isAvailableNow, status } = body;
+    const { name, contact, address, municipality, experience, vehicle, availableTime, skills, emergencyAvailability, imageUrl, assignedZone, isAvailableNow, status, description } = body;
+
+    const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+    const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
     if (!name || !contact) {
       return NextResponse.json({ success: false, error: 'name and contact are required' }, { status: 400 });
@@ -25,8 +28,33 @@ export async function POST(req: NextRequest) {
         imageUrl: imageUrl || null,
         assignedZone: assignedZone || null,
         isAvailableNow: isAvailableNow || false,
+        description: description || null,
       },
     });
+
+    if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
+      const telegramMessage = `
+🆕 *NEW VOLUNTEER APPLICATION*
+
+👤 *Name:* ${volunteer.name}
+📍 *Address:* ${volunteer.address}, ${volunteer.municipality}
+📞 *Contact:* [${volunteer.contact}](tel:${volunteer.contact})
+🚗 *Vehicle:* ${volunteer.vehicle}
+⏱️ *Available:* ${volunteer.availableTime}
+
+Please review this application in the Admin Dashboard.
+      `.trim();
+
+      fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: TELEGRAM_CHAT_ID,
+          text: telegramMessage,
+          parse_mode: 'Markdown',
+        }),
+      }).catch(console.error);
+    }
 
     return NextResponse.json({ success: true, data: volunteer }, { status: 201 });
   } catch (error) {
@@ -39,7 +67,10 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status');
-    const where = status ? { status } : {};
+    const isAvailableNow = searchParams.get('isAvailableNow');
+    const where: any = {};
+    if (status) where.status = status;
+    if (isAvailableNow === 'true') where.isAvailableNow = true;
     const volunteers = await db.volunteer.findMany({ where, orderBy: { createdAt: 'desc' } });
     return NextResponse.json({ success: true, data: volunteers });
   } catch (error) {

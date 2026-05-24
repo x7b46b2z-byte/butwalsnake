@@ -8,7 +8,7 @@ interface Volunteer {
   id: string; name: string; contact: string; address: string; municipality: string;
   experience: string; vehicle: string; availableTime: string; skills: string;
   emergencyAvailability: string; status: string; assignedZone: string | null; 
-  imageUrl: string | null; isAvailableNow: boolean; createdAt: string;
+  imageUrl: string | null; isAvailableNow: boolean; description?: string | null; createdAt: string;
 }
 
 const STATUS_OPTS = ['PENDING', 'APPROVED', 'REJECTED'];
@@ -26,7 +26,7 @@ export default function AdminVolunteersPage() {
   const [addError, setAddError] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<Volunteer | null>(null);
-  const BLANK_VOLUNTEER = { name: '', contact: '', address: '', municipality: 'Butwal', experience: 'Beginner', vehicle: 'None', availableTime: '', skills: '', emergencyAvailability: 'Yes', status: 'APPROVED', assignedZone: '', imageUrl: '', isAvailableNow: true };
+  const BLANK_VOLUNTEER = { name: '', contact: '', address: '', municipality: 'Butwal', experience: 'Beginner', vehicle: 'None', availableTime: '', skills: '', emergencyAvailability: 'Yes', status: 'APPROVED', assignedZone: '', imageUrl: '', isAvailableNow: true, description: '' };
   const [addForm, setAddForm] = useState(BLANK_VOLUNTEER);
 
   const fetchVolunteers = useCallback(async () => { setLoading(true); try { const res = await fetch('/api/volunteer'); const data = await res.json(); if (data.success) setVolunteers(data.data); } finally { setLoading(false); } }, []);
@@ -156,6 +156,7 @@ export default function AdminVolunteersPage() {
                       </select>
                     </div>
                   </div>
+                  <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Description / About</label><textarea value={editForm.description || ''} onChange={e => setEditForm(p => p ? ({ ...p, description: e.target.value }) : null)} placeholder="Volunteer description..." rows={3} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 resize-none" /></div>
                   <div><label className="flex items-center gap-2 text-white font-medium cursor-pointer"><input type="checkbox" checked={editForm.isAvailableNow} onChange={e => setEditForm(p => p ? ({ ...p, isAvailableNow: e.target.checked }) : null)} className="w-5 h-5 accent-emerald-500 rounded" /> Available for rescues right now</label></div>
                   
                   {addError && <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-2">{addError}</p>}
@@ -244,6 +245,7 @@ export default function AdminVolunteersPage() {
                     </label>
                   </div>
                 </div>
+                <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Description / About</label><textarea value={addForm.description} onChange={e => setAddForm(p => ({ ...p, description: e.target.value }))} placeholder="Volunteer description..." rows={3} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 resize-none" /></div>
                 
                 {addError && <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-2">{addError}</p>}
                 <button onClick={handleAdd} disabled={adding} className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-bold py-3 rounded-xl flex items-center justify-center gap-2">

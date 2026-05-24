@@ -66,7 +66,7 @@ export const Footer: React.FC = () => {
           {/* Col 2: Coverage Areas */}
           <div>
             <h3 className="text-white text-sm font-bold uppercase tracking-wider mb-4 border-l-2 border-primary pl-2">
-              Coverage Areas
+              {t('coverageAreas')}
             </h3>
             <ul className="space-y-2 text-sm text-gray-400">
               <li className="flex items-center space-x-2">
@@ -94,42 +94,21 @@ export const Footer: React.FC = () => {
 
           {/* Col 3: Direct Navigation */}
           <div>
-            <h3 className="text-white text-sm font-bold uppercase tracking-wider mb-4 border-l-2 border-primary pl-2">
-              Useful Information
-            </h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/emergency" className="text-gray-400 hover:text-white transition-colors">
-                  Request Snake Rescue
-                </Link>
-              </li>
-              <li>
-                <Link href="/firstaid" className="text-gray-400 hover:text-white transition-colors">
-                  Snakebite First Aid
-                </Link>
-              </li>
-              <li>
-                <Link href="/snakes" className="text-gray-400 hover:text-white transition-colors">
-                  Rupandehi Species DB
-                </Link>
-              </li>
-              <li>
-                <Link href="/volunteer" className="text-gray-400 hover:text-white transition-colors">
-                  Join as Volunteer
-                </Link>
-              </li>
-              <li>
-                <Link href="/donate" className="text-gray-400 hover:text-white transition-colors">
-                  Donate to Conservation
-                </Link>
-              </li>
+            <h3 className="text-white font-bold text-lg mb-4">{t('usefulInfo')}</h3>
+            <ul className="space-y-3">
+              <li><Link href="/emergency" className="text-gray-400 hover:text-emerald-400 transition-colors flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {t('emergency')}</Link></li>
+              <li><Link href="/snakes" className="text-gray-400 hover:text-emerald-400 transition-colors flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {t('snakes')}</Link></li>
+              <li><Link href="/firstaid" className="text-gray-400 hover:text-emerald-400 transition-colors flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {t('firstAid')}</Link></li>
+              <li><Link href="/volunteer" className="text-gray-400 hover:text-emerald-400 transition-colors flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {t('volunteer')}</Link></li>
+              <li><Link href="/donate" className="text-gray-400 hover:text-emerald-400 transition-colors flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {t('donate')}</Link></li>
+              <li><Link href="/admin" className="text-gray-400 hover:text-emerald-400 transition-colors flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {t('admin')}</Link></li>
             </ul>
           </div>
 
           {/* Col 4: Hotlines & Quick Contacts */}
           <div>
             <h3 className="text-white text-sm font-bold uppercase tracking-wider mb-4 border-l-2 border-primary pl-2">
-              24/7 Hotline Contacts
+              {t('hotlineContacts')}
             </h3>
             <div className="space-y-3">
               <a
@@ -167,7 +146,7 @@ export const Footer: React.FC = () => {
         <div className="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500 font-manrope">
           <p>© {currentYear} Butwal Snake Rescuers. All Rights Reserved. Rupandehi, Nepal.</p>
           <p className="flex items-center gap-1.5">
-            Designed by semicolon victims ;
+            {t('designedBy')}
           </p>
         </div>
 

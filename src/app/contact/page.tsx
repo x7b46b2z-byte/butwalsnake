@@ -13,7 +13,10 @@ const CONTACT_METHODS = [
   { icon: MapPin, label: 'Location', value: 'Butwal-11, Rupandehi', sub: 'Lumbini Province, Nepal', href: 'https://maps.google.com/?q=Butwal,Nepal', color: 'emerald' },
 ];
 
+import { useApp } from '@/context/AppContext';
+
 export default function ContactPage() {
+  const { t } = useApp();
   const [form, setForm] = useState({ name: '', email: '', phone: '', subject: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -25,10 +28,23 @@ export default function ContactPage() {
     e.preventDefault();
     if (!form.name || !form.message) { setError('Please enter your name and message.'); return; }
     setLoading(true);
-    // Simulate API call - replace with actual contact form API
-    await new Promise(r => setTimeout(r, 1200));
-    setLoading(false);
-    setSubmitted(true);
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSubmitted(true);
+      } else {
+        setError(data.error || 'Failed to send message.');
+      }
+    } catch (err) {
+      setError('An error occurred. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -40,10 +56,10 @@ export default function ContactPage() {
         <motion.div initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
           <div className="inline-flex items-center gap-2 bg-blue-500/20 border border-blue-500/40 rounded-full px-4 py-1.5 mb-4">
             <MessageSquare className="w-4 h-4 text-blue-400" />
-            <span className="text-blue-400 text-sm font-semibold">GET IN TOUCH</span>
+            <span className="text-blue-400 text-sm font-semibold">{t('getInTouch')}</span>
           </div>
-          <h1 className="text-5xl font-bold text-white mb-4">Contact Us</h1>
-          <p className="text-gray-400 max-w-lg mx-auto">For emergencies, call directly. For general queries, use the form below.</p>
+          <h1 className="text-5xl font-bold text-white mb-4">{t('contactTitle')}</h1>
+          <p className="text-gray-400 max-w-lg mx-auto">{t('contactSub')}</p>
         </motion.div>
       </div>
 
@@ -67,42 +83,42 @@ export default function ContactPage() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           {/* Form */}
           <div className="lg:col-span-3">
-            <h2 className="text-2xl font-bold text-white mb-6">Send Us a Message</h2>
+            <h2 className="text-2xl font-bold text-white mb-6">{t('sendMessage')}</h2>
 
             {submitted ? (
               <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="glass-card rounded-2xl p-10 border border-emerald-500/30 text-center">
                 <CheckCircle className="w-16 h-16 text-emerald-400 mx-auto mb-4" />
-                <h3 className="text-white font-bold text-xl mb-2">Message Sent!</h3>
+                <h3 className="text-white font-bold text-xl mb-2">{t('messageSent')}</h3>
                 <p className="text-gray-400 text-sm">We'll get back to you within 24 hours. For urgent matters, please call us directly.</p>
               </motion.div>
             ) : (
               <form onSubmit={handleSubmit} className="glass-card rounded-2xl p-7 border border-white/10 space-y-5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
-                    <label className="text-sm text-gray-400 font-medium mb-2 block">Your Name *</label>
+                    <label className="text-sm text-gray-400 font-medium mb-2 block">{t('yourName')}</label>
                     <input value={form.name} onChange={e => update('name', e.target.value)} placeholder="Full name" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 transition-colors" />
                   </div>
                   <div>
-                    <label className="text-sm text-gray-400 font-medium mb-2 block">Phone</label>
+                    <label className="text-sm text-gray-400 font-medium mb-2 block">{t('phone')}</label>
                     <input value={form.phone} onChange={e => update('phone', e.target.value)} placeholder="98XXXXXXXX" type="tel" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 transition-colors" />
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm text-gray-400 font-medium mb-2 block">Email</label>
+                  <label className="text-sm text-gray-400 font-medium mb-2 block">{t('email')}</label>
                   <input value={form.email} onChange={e => update('email', e.target.value)} placeholder="you@example.com" type="email" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 transition-colors" />
                 </div>
                 <div>
-                  <label className="text-sm text-gray-400 font-medium mb-2 block">Subject</label>
+                  <label className="text-sm text-gray-400 font-medium mb-2 block">{t('subject')}</label>
                   <input value={form.subject} onChange={e => update('subject', e.target.value)} placeholder="What's this about?" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 transition-colors" />
                 </div>
                 <div>
-                  <label className="text-sm text-gray-400 font-medium mb-2 block">Message *</label>
+                  <label className="text-sm text-gray-400 font-medium mb-2 block">{t('message')}</label>
                   <textarea value={form.message} onChange={e => update('message', e.target.value)} placeholder="How can we help you?" rows={4} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 transition-colors resize-none" />
                 </div>
                 {error && <div className="bg-red-500/20 border border-red-500/40 rounded-xl p-3 text-red-400 text-sm">{error}</div>}
                 <button type="submit" disabled={loading} className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-bold py-3.5 rounded-xl transition-colors flex items-center justify-center gap-2">
                   {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-                  {loading ? 'Sending...' : 'Send Message'}
+                  {loading ? t('sending') : t('sendBtn')}
                 </button>
               </form>
             )}

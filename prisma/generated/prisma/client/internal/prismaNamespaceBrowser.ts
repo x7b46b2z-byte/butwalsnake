@@ -126,6 +126,7 @@ export const VolunteerScalarFieldEnum = {
   status: 'status',
   assignedZone: 'assignedZone',
   imageUrl: 'imageUrl',
+  description: 'description',
   isAvailableNow: 'isAvailableNow',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -162,6 +163,7 @@ export const BlogPostScalarFieldEnum = {
   author: 'author',
   tags: 'tags',
   status: 'status',
+  imageUrl: 'imageUrl',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
