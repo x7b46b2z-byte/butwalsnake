@@ -34,13 +34,25 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   try {
     const { id } = await params;
     const body = await req.json();
-    const { status, imageUrl, isAvailableNow, assignedZone } = body;
+    const { 
+      status, imageUrl, isAvailableNow, assignedZone,
+      name, contact, address, municipality, experience, vehicle, availableTime, skills, emergencyAvailability
+    } = body;
 
     const dataToUpdate: any = {};
     if (status !== undefined) dataToUpdate.status = status;
     if (imageUrl !== undefined) dataToUpdate.imageUrl = imageUrl;
     if (isAvailableNow !== undefined) dataToUpdate.isAvailableNow = isAvailableNow;
     if (assignedZone !== undefined) dataToUpdate.assignedZone = assignedZone;
+    if (name !== undefined) dataToUpdate.name = name;
+    if (contact !== undefined) dataToUpdate.contact = contact;
+    if (address !== undefined) dataToUpdate.address = address;
+    if (municipality !== undefined) dataToUpdate.municipality = municipality;
+    if (experience !== undefined) dataToUpdate.experience = experience;
+    if (vehicle !== undefined) dataToUpdate.vehicle = vehicle;
+    if (availableTime !== undefined) dataToUpdate.availableTime = availableTime;
+    if (skills !== undefined) dataToUpdate.skills = skills;
+    if (emergencyAvailability !== undefined) dataToUpdate.emergencyAvailability = emergencyAvailability;
 
     const updated = await db.volunteer.update({
       where: { id },

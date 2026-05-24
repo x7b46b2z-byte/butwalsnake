@@ -143,15 +143,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               {NAV_ITEMS.find(n => isActive(n))?.label ?? 'Admin'}
             </h2>
           </div>
-          <div className="flex items-center gap-3">
-            <button className="relative text-gray-400 hover:text-white transition-colors">
-              <Bell className="w-5 h-5" />
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
-            </button>
-            <div className="w-8 h-8 bg-emerald-500/20 border border-emerald-500/40 rounded-full flex items-center justify-center">
-              <span className="text-emerald-400 text-xs font-bold">A</span>
-            </div>
-          </div>
         </header>
 
         {/* Page content */}

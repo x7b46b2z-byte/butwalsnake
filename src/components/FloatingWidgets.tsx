@@ -24,18 +24,6 @@ export const FloatingWidgets: React.FC = () => {
         </span>
       </a>
 
-      {/* Floating Red Phone Widget */}
-      <a
-        href={`tel:${t('tel1')}`}
-        className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 hover:scale-105 active:scale-95 text-white p-3 sm:p-3.5 rounded-full shadow-2xl transition-all duration-300 border border-red-500 shadow-red-500/20 group pointer-events-auto cursor-pointer glow-red animate-bounce"
-        title={`${t('emergencyCall')}: ${t('tel1')}`}
-      >
-        <Phone className="h-5 w-5 sm:h-6 sm:w-6 text-white group-hover:scale-110 transition-transform" />
-        <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-500 ease-in-out text-sm font-bold block whitespace-nowrap">
-          {t('emergencyCall')} ({t('tel1')})
-        </span>
-      </a>
-
     </div>
   );
 };

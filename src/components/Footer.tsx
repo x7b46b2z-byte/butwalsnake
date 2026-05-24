@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useApp } from '@/context/AppContext';
-import { ShieldAlert, Phone, Mail, MapPin, Heart } from 'lucide-react';
+import { ShieldAlert, Phone, Mail, MapPin, Heart, Facebook, Instagram } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   const { t } = useApp();
@@ -26,7 +26,6 @@ export const Footer: React.FC = () => {
             <p className="text-sm text-gray-400 leading-relaxed font-manrope">
               Protecting human lives and conserving Rupandehi biodiversity through safe, 24/7 emergency snake rescue, local community education, and snakebite first aid awareness.
             </p>
-            <div className="flex space-x-4 pt-2">
               <a
                 href="https://facebook.com/butwalsnakerescuers"
                 target="_blank"
@@ -34,8 +33,26 @@ export const Footer: React.FC = () => {
                 className="p-2 bg-white/5 hover:bg-primary/10 border border-white/10 hover:border-primary/20 rounded-lg text-gray-400 hover:text-primary transition-all duration-300"
                 aria-label="Facebook"
               >
-                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.413c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/>
+                <Facebook className="h-5 w-5" />
+              </a>
+              <a
+                href="https://instagram.com/butwalsnakerescuers"
+                target="_blank"
+                rel="noreferrer"
+                className="p-2 bg-white/5 hover:bg-primary/10 border border-white/10 hover:border-primary/20 rounded-lg text-gray-400 hover:text-primary transition-all duration-300"
+                aria-label="Instagram"
+              >
+                <Instagram className="h-5 w-5" />
+              </a>
+              <a
+                href="https://tiktok.com/@butwalsnakerescuers"
+                target="_blank"
+                rel="noreferrer"
+                className="p-2 bg-white/5 hover:bg-primary/10 border border-white/10 hover:border-primary/20 rounded-lg text-gray-400 hover:text-primary transition-all duration-300 flex items-center justify-center"
+                aria-label="TikTok"
+              >
+                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.01.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.24-2.61.94-5.22 3.01-6.73 1.63-1.19 3.73-1.57 5.68-1.07v4.11c-1.12-.27-2.31-.18-3.3.38-.85.48-1.48 1.34-1.61 2.33-.14 1.05.29 2.14 1.05 2.87.77.72 1.88 1.01 2.91.81 1.25-.24 2.21-1.29 2.38-2.56.12-.9.08-1.82.08-2.73 0-6.49-.03-12.98.02-19.47Z"/>
                 </svg>
               </a>
             </div>
@@ -145,7 +162,7 @@ export const Footer: React.FC = () => {
         <div className="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500 font-manrope">
           <p>© {currentYear} Butwal Snake Rescuers. All Rights Reserved. Rupandehi, Nepal.</p>
           <p className="flex items-center gap-1.5">
-            Designed with <Heart className="h-3.5 w-3.5 text-primary fill-primary animate-pulse" /> for Nepal Wildlife Biodiversity.
+            Designed by semicolon victims ;
           </p>
         </div>
 

@@ -53,7 +53,7 @@ export const Navbar: React.FC = () => {
               <span className="text-[10px] text-emerald-400 font-semibold uppercase tracking-widest block">24/7 Wildlife Rescue</span>
             </div>
             <div className="sm:hidden">
-              <span className="text-sm font-bold text-white">BSR</span>
+              <span className="text-sm font-bold text-white">Butwal Snake Rescuers</span>
             </div>
           </Link>
 

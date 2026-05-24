@@ -59,11 +59,7 @@ export default function AdminVolunteersPage() {
     try {
       const res = await fetch(`/api/volunteer/${editForm.id}`, {
         method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          imageUrl: editForm.imageUrl, 
-          isAvailableNow: editForm.isAvailableNow,
-          assignedZone: editForm.assignedZone
-        }),
+        body: JSON.stringify(editForm),
       });
       const data = await res.json();
       if (data.success) {
@@ -132,8 +128,34 @@ export default function AdminVolunteersPage() {
               
               {isEditing && editForm ? (
                 <div className="p-6 space-y-4">
-                  <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Profile Image URL</label><input value={editForm.imageUrl || ''} onChange={e => setEditForm(p => p ? ({ ...p, imageUrl: e.target.value }) : null)} placeholder="https://..." className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-emerald-500" /></div>
-                  <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Assigned Zone</label><input value={editForm.assignedZone || ''} onChange={e => setEditForm(p => p ? ({ ...p, assignedZone: e.target.value }) : null)} placeholder="e.g. Butwal Ward 12" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-emerald-500" /></div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Name *</label><input value={editForm.name} onChange={e => setEditForm(p => p ? ({ ...p, name: e.target.value }) : null)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
+                    <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Contact *</label><input value={editForm.contact} onChange={e => setEditForm(p => p ? ({ ...p, contact: e.target.value }) : null)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
+                    <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Municipality</label>
+                      <select value={editForm.municipality} onChange={e => setEditForm(p => p ? ({ ...p, municipality: e.target.value }) : null)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 appearance-none">
+                        {['Butwal', 'Tilottama', 'Siddharthanagar', 'Devdaha', 'Other'].map(m => <option key={m} value={m} className="bg-[#0f1a1c]">{m}</option>)}
+                      </select>
+                    </div>
+                    <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Experience</label>
+                      <select value={editForm.experience} onChange={e => setEditForm(p => p ? ({ ...p, experience: e.target.value }) : null)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 appearance-none">
+                        {['Beginner', 'Intermediate', 'Advanced'].map(p => <option key={p} value={p} className="bg-[#0f1a1c]">{p}</option>)}
+                      </select>
+                    </div>
+                    <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Assigned Zone</label><input value={editForm.assignedZone || ''} onChange={e => setEditForm(p => p ? ({ ...p, assignedZone: e.target.value }) : null)} placeholder="e.g. Ward 12" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
+                    <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Profile Image URL</label><input value={editForm.imageUrl || ''} onChange={e => setEditForm(p => p ? ({ ...p, imageUrl: e.target.value }) : null)} placeholder="https://..." className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
+                  </div>
+                  <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Address *</label><input value={editForm.address} onChange={e => setEditForm(p => p ? ({ ...p, address: e.target.value }) : null)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Available Time *</label><input value={editForm.availableTime} onChange={e => setEditForm(p => p ? ({ ...p, availableTime: e.target.value }) : null)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
+                    <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Skills *</label><input value={editForm.skills} onChange={e => setEditForm(p => p ? ({ ...p, skills: e.target.value }) : null)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
+                    <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Vehicle</label><input value={editForm.vehicle} onChange={e => setEditForm(p => p ? ({ ...p, vehicle: e.target.value }) : null)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500" /></div>
+                    <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Status</label>
+                      <select value={editForm.status} onChange={e => setEditForm(p => p ? ({ ...p, status: e.target.value }) : null)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 appearance-none">
+                        {STATUS_OPTS.map(s => <option key={s} value={s} className="bg-[#0f1a1c]">{s}</option>)}
+                      </select>
+                    </div>
+                  </div>
                   <div><label className="flex items-center gap-2 text-white font-medium cursor-pointer"><input type="checkbox" checked={editForm.isAvailableNow} onChange={e => setEditForm(p => p ? ({ ...p, isAvailableNow: e.target.checked }) : null)} className="w-5 h-5 accent-emerald-500 rounded" /> Available for rescues right now</label></div>
                   
                   {addError && <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-2">{addError}</p>}
