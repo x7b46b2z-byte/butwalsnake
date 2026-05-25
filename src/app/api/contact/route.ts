@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
 ${message}
       `.trim();
 
-      await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -34,6 +34,11 @@ ${message}
           parse_mode: 'Markdown',
         }),
       });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Failed to send Telegram contact alert:', errorText);
+      }
     }
 
     // You can also choose to save this to DB if a ContactMessage model is created later.

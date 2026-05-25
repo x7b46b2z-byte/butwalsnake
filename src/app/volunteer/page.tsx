@@ -20,7 +20,7 @@ const BENEFITS = [
 ];
 
 export default function VolunteerPage() {
-  const [form, setForm] = useState({ name: '', contact: '', address: '', municipality: 'Butwal', experience: 'Beginner', vehicle: 'None', availableTime: 'Anytime', skills: '', emergencyAvailability: 'Yes' });
+  const [form, setForm] = useState({ name: '', contact: '', address: '', municipality: 'Butwal', assignedMunicipalities: ['Butwal'], experience: 'Beginner', vehicle: 'None', availableTime: 'Anytime', skills: '', emergencyAvailability: 'Yes' });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -45,12 +45,22 @@ export default function VolunteerPage() {
     if (!form.name || !form.contact) { setError('Please fill in Name and Contact number.'); return; }
     setLoading(true);
     try {
-      const res = await fetch('/api/volunteer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
+      const res = await fetch('/api/volunteer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...form,
+          assignedZone: form.assignedMunicipalities.length ? form.assignedMunicipalities.join(', ') : form.municipality,
+        }),
+      });
       const data = await res.json();
       if (data.success) setSubmitted(true);
       else setError(data.error || 'Submission failed. Please try again.');
-    } catch { setError('Network error. Please try again.'); }
-    finally { setLoading(false); }
+    } catch {
+      setError('Network error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -124,7 +134,11 @@ export default function VolunteerPage() {
                   )}
                 </div>
                 <h3 className="text-white font-bold text-xl mb-1">{v.name}</h3>
-                <p className="text-emerald-400 text-sm font-semibold mb-3">{v.assignedZone || v.municipality}</p>
+                <div className="flex flex-wrap justify-center gap-2 mb-3">
+                  {(v.assignedZone ? v.assignedZone.split(/[,;|]/).map((m: string) => m.trim()).filter(Boolean) : [v.municipality]).map((municipality: string) => (
+                    <span key={municipality} className="text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full text-xs font-semibold">{municipality}</span>
+                  ))}
+                </div>
                 <div className="inline-flex flex-col items-center gap-1.5 text-xs text-gray-400">
                   <span className="bg-white/5 px-3 py-1.5 rounded-full border border-white/10 font-mono text-gray-300">{v.contact}</span>
                   {v.isAvailableNow ? (
@@ -147,6 +161,13 @@ export default function VolunteerPage() {
               <div><label className="text-sm text-gray-400 font-medium mb-2 block">Phone / Contact *</label><input value={form.contact} onChange={e => update('contact', e.target.value)} placeholder="98XXXXXXXX" type="tel" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 transition-colors" /></div>
               <div><label className="text-sm text-gray-400 font-medium mb-2 block">Address</label><input value={form.address} onChange={e => update('address', e.target.value)} placeholder="Your home address" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 transition-colors" /></div>
               <div><label className="text-sm text-gray-400 font-medium mb-2 block">Municipality</label><select value={form.municipality} onChange={e => update('municipality', e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors appearance-none">{MUNICIPALITIES.map(m => <option key={m} value={m} className="bg-[#1a2b2f]">{m}</option>)}</select></div>
+              <div className="sm:col-span-2"><label className="text-sm text-gray-400 font-medium mb-2 block">Available Municipalities</label><div className="grid grid-cols-2 sm:grid-cols-3 gap-2">{MUNICIPALITIES.map(m => (<button key={m} type="button" onClick={() => {
+                    const selected = form.assignedMunicipalities.includes(m);
+                    const next = selected ? form.assignedMunicipalities.filter(item => item !== m) : [...form.assignedMunicipalities, m];
+                    setForm(prev => ({ ...prev, assignedMunicipalities: next }));
+                  }} className={`px-3 py-2 rounded-xl text-sm border transition-colors ${form.assignedMunicipalities.includes(m) ? 'bg-emerald-500 text-black border-emerald-500' : 'bg-white/5 text-gray-300 border-white/10 hover:border-white/20 hover:text-white'}`}>
+                    {m}
+                  </button>))}</div></div>
               <div><label className="text-sm text-gray-400 font-medium mb-2 block">Experience Level</label><select value={form.experience} onChange={e => update('experience', e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors appearance-none">{EXPERIENCE_LEVELS.map(l => <option key={l} value={l} className="bg-[#1a2b2f]">{l}</option>)}</select></div>
               <div><label className="text-sm text-gray-400 font-medium mb-2 block">Vehicle</label><select value={form.vehicle} onChange={e => update('vehicle', e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors appearance-none">{VEHICLES.map(v => <option key={v} value={v} className="bg-[#1a2b2f]">{v}</option>)}</select></div>
               <div><label className="text-sm text-gray-400 font-medium mb-2 block">Available Time</label><select value={form.availableTime} onChange={e => update('availableTime', e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500 transition-colors appearance-none">{AVAILABLE_TIMES.map(t => <option key={t} value={t} className="bg-[#1a2b2f]">{t}</option>)}</select></div>

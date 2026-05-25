@@ -25,6 +25,10 @@ type Zone = {
   responders: number;
 };
 
+type CoverageMapProps = {
+  volunteers?: any[];
+};
+
 const INITIAL_ZONES: Zone[] = [
   { name: 'Butwal', nameNe: 'बुटवल', lat: 27.7006, lng: 83.4532, 
     polygon: [[27.732, 83.415], [27.745, 83.468], [27.712, 83.485], [27.675, 83.480], [27.670, 83.422]], 
@@ -43,7 +47,7 @@ const INITIAL_ZONES: Zone[] = [
     status: 'busy', responders: 0 },
 ];
 
-export default function CoverageMap() {
+export default function CoverageMap({ volunteers }: CoverageMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const [selectedZone, setSelectedZone] = useState<Zone | null>(null);
@@ -51,27 +55,43 @@ export default function CoverageMap() {
   const [totalActive, setTotalActive] = useState(0);
 
   useEffect(() => {
-    fetch('/api/volunteer?status=APPROVED')
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          const vols = data.data;
-          let activeCount = 0;
-          const updatedZones = INITIAL_ZONES.map(zone => {
-            const zVols = vols.filter((v: any) => v.municipality === zone.name || (v.assignedZone && v.assignedZone.includes(zone.name)));
-            const activeVols = zVols.filter((v: any) => v.isAvailableNow);
-            activeCount += activeVols.length;
-            return {
-              ...zone,
-              responders: zVols.length,
-              status: activeVols.length > 0 ? 'active' : 'busy',
-            } as Zone;
-          });
-          setZones(updatedZones);
-          setTotalActive(activeCount);
-        }
+    if (!volunteers || volunteers.length === 0) return;
+
+    const parseAssignedZones = (assignedZone: string | null | undefined) => {
+      if (!assignedZone) return [];
+      return assignedZone
+        .split(/[,;|]/)
+        .map(zone => zone.trim())
+        .filter(Boolean);
+    };
+
+    const uniqueActiveIds = new Set<string>();
+
+    const updatedZones = INITIAL_ZONES.map(zone => {
+      const zVols = volunteers.filter((v: any) => {
+        const assignedZones = parseAssignedZones(v.assignedZone);
+        return v.municipality === zone.name || assignedZones.includes(zone.name);
       });
-  }, []);
+
+      const uniqueZoneVols = Array.from(new Map(zVols.map((v: any) => [v.id, v])).values());
+      const activeVols = uniqueZoneVols.filter((v: any) => {
+        if (v.isAvailableNow) {
+          uniqueActiveIds.add(v.id);
+          return true;
+        }
+        return false;
+      });
+
+      return {
+        ...zone,
+        responders: uniqueZoneVols.length,
+        status: activeVols.length > 0 ? 'active' : 'busy',
+      } as Zone;
+    });
+
+    setZones(updatedZones);
+    setTotalActive(uniqueActiveIds.size);
+  }, [volunteers]);
 
   useEffect(() => {
     if (!mapContainer.current || mapRef.current || zones === INITIAL_ZONES) return;

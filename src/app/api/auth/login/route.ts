@@ -13,9 +13,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Username and password are required' }, { status: 400 });
     }
 
-    // username is stored in the email column
-    const user = await db.user.findUnique({ where: { email: username } });
-    if (!user) {
+    const { data: user, error } = await db
+      .from('User')
+      .select('id, email, password, name, role')
+      .eq('email', username)
+      .single();
+
+    if (error || !user) {
       return NextResponse.json({ success: false, error: 'Invalid credentials' }, { status: 401 });
     }
 

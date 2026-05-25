@@ -1,21 +1,13 @@
-import { Pool } from 'pg';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '../../prisma/generated/prisma/client/client';
+import { createClient } from '@supabase/supabase-js';
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
 
-const connectionString = process.env.DATABASE_URL;
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error('SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY or SUPABASE_ANON_KEY must be defined');
+}
 
-const pool = new Pool({ 
-  connectionString,
-  ssl: { rejectUnauthorized: false }
+export const db = createClient(supabaseUrl, supabaseKey, {
+  auth: { persistSession: false },
+  global: { fetch },
 });
-const adapter = new PrismaPg(pool);
-
-export const db = globalForPrisma.prisma || new PrismaClient({ adapter });
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db;
-
-export { PrismaClient };

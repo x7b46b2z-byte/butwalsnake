@@ -6,22 +6,21 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const limit = parseInt(searchParams.get('limit') || '10');
     const offset = parseInt(searchParams.get('offset') || '0');
+    const status = searchParams.get('status');
 
-    // On admin, we might want to fetch all regardless of status, but for now we'll allow an admin param or just fetch all if no status is specified
-    const status = searchParams.get('status') || undefined;
-    const where = status ? { status } : {};
+    let query = db.from('BlogPost').select('*', { count: 'exact' });
+    if (status) query = query.eq('status', status);
 
-    const [blogs, total] = await Promise.all([
-      db.blogPost.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-        take: limit,
-        skip: offset,
-      }),
-      db.blogPost.count({ where }),
-    ]);
+    const { data: blogs, count, error } = await query
+      .order('createdAt', { ascending: false })
+      .range(offset, offset + limit - 1);
 
-    return NextResponse.json({ success: true, data: blogs, total });
+    if (error) {
+      console.error('GET /api/blog error:', error);
+      return NextResponse.json({ success: false, error: 'Failed to fetch blogs' }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, data: blogs ?? [], total: count ?? 0 });
   } catch (error) {
     console.error('GET /api/blog error:', error);
     return NextResponse.json({ success: false, error: 'Failed to fetch blogs' }, { status: 500 });
@@ -37,8 +36,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
     }
 
-    const blog = await db.blogPost.create({
-      data: {
+    const { data: blog, error } = await db
+      .from('BlogPost')
+      .insert({
         title,
         slug,
         content,
@@ -47,8 +47,14 @@ export async function POST(req: NextRequest) {
         tags: tags || '',
         status: status || 'PUBLISHED',
         imageUrl: imageUrl || null,
-      },
-    });
+      })
+      .select()
+      .single();
+
+    if (error || !blog) {
+      console.error('POST /api/blog error:', error);
+      return NextResponse.json({ success: false, error: 'Failed to create blog post' }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true, data: blog }, { status: 201 });
   } catch (error) {

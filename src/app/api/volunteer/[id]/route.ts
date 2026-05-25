@@ -34,9 +34,21 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   try {
     const { id } = await params;
     const body = await req.json();
-    const { 
-      status, imageUrl, isAvailableNow, assignedZone,
-      name, contact, address, municipality, experience, vehicle, availableTime, skills, emergencyAvailability, description
+    const {
+      status,
+      imageUrl,
+      isAvailableNow,
+      assignedZone,
+      name,
+      contact,
+      address,
+      municipality,
+      experience,
+      vehicle,
+      availableTime,
+      skills,
+      emergencyAvailability,
+      description,
     } = body;
 
     const dataToUpdate: any = {};
@@ -55,10 +67,17 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (emergencyAvailability !== undefined) dataToUpdate.emergencyAvailability = emergencyAvailability;
     if (description !== undefined) dataToUpdate.description = description;
 
-    const updated = await db.volunteer.update({
-      where: { id },
-      data: dataToUpdate,
-    });
+    const { data: updated, error } = await db
+      .from('Volunteer')
+      .update(dataToUpdate)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error || !updated) {
+      console.error('PATCH /api/volunteer/[id] error:', error);
+      return NextResponse.json({ success: false, error: 'Failed to update volunteer' }, { status: 500 });
+    }
 
     if (status === 'APPROVED') {
       sendVolunteerApprovedAlert(updated);

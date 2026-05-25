@@ -35,6 +35,8 @@ export default function AdminRescuesPage() {
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [selected, setSelected] = useState<Rescue | null>(null);
   const [updating, setUpdating] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
   const [editForm, setEditForm] = useState({ status: '', assignedToName: '', rescueNotes: '' });
   const [showAdd, setShowAdd] = useState(false);
   const [addForm, setAddForm] = useState({ ...BLANK_ADD });
@@ -92,6 +94,29 @@ export default function AdminRescuesPage() {
       if (data.success) { setAddForm({ ...BLANK_ADD }); setShowAdd(false); fetchRescues(); }
       else setAddError(data.error || 'Failed to add rescue.');
     } finally { setAdding(false); }
+  };
+
+  const handleDelete = async () => {
+    if (!selected) return;
+    setDeleteError('');
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/rescue/${selected.id}`, {
+        method: 'DELETE', headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSelected(null);
+        fetchRescues();
+      } else {
+        setDeleteError(data.error || 'Failed to delete rescue request.');
+      }
+    } catch (error) {
+      console.error(error);
+      setDeleteError('Failed to delete rescue request.');
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const counts: Record<string, number> = { ALL: rescues.length, ...Object.fromEntries(STATUS_OPTIONS.map(s => [s, rescues.filter(r => r.status === s).length])) };
@@ -181,9 +206,15 @@ export default function AdminRescuesPage() {
                   </div>
                   <div><label className={labelCls}>Assigned Rescuer</label><input value={editForm.assignedToName} onChange={e => setEditForm(p => ({ ...p, assignedToName: e.target.value }))} placeholder="Rescuer name..." className={inputCls} /></div>
                   <div><label className={labelCls}>Rescue Notes</label><textarea value={editForm.rescueNotes} onChange={e => setEditForm(p => ({ ...p, rescueNotes: e.target.value }))} placeholder="Notes from operation..." rows={3} className={`${inputCls} resize-none`} /></div>
-                  <button onClick={handleUpdate} disabled={updating} className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-bold py-3 rounded-xl flex items-center justify-center gap-2">
-                    {updating ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />} {updating ? 'Saving...' : 'Save Changes'}
-                  </button>
+                  {deleteError && <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-2">{deleteError}</p>}
+                  <div className="flex flex-col gap-3 sm:flex-row">
+                    <button onClick={handleUpdate} disabled={updating || deleting} className="flex-1 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-bold py-3 rounded-xl flex items-center justify-center gap-2">
+                      {updating ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />} {updating ? 'Saving...' : 'Save Changes'}
+                    </button>
+                    <button onClick={handleDelete} disabled={deleting || updating} className="flex-1 bg-red-500 hover:bg-red-400 disabled:opacity-50 text-black font-bold py-3 rounded-xl flex items-center justify-center gap-2">
+                      {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <X className="w-4 h-4" />} {deleting ? 'Deleting...' : 'Remove Request'}
+                    </button>
+                  </div>
                 </div>
               </div>
             </motion.div>

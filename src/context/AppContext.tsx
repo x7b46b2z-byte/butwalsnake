@@ -136,6 +136,8 @@ type AppContextType = {
   isEmergencyBannerOpen: boolean;
   setEmergencyBannerOpen: (val: boolean) => void;
   activeRescuers: any[];
+  volunteers: any[];
+  volunteersLoading: boolean;
   fetchActiveRescuers: () => void;
 };
 
@@ -145,6 +147,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [lang, setLang] = useState<Language>('en');
   const [isEmergencyBannerOpen, setEmergencyBannerOpen] = useState(true);
   const [activeRescuers, setActiveRescuers] = useState<any[]>([]);
+  const [volunteers, setVolunteers] = useState<any[]>([]);
+  const [volunteersLoading, setVolunteersLoading] = useState(false);
   const [hasFetchedRescuers, setHasFetchedRescuers] = useState(false);
 
   // Load language preference if set
@@ -157,11 +161,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const fetchActiveRescuers = () => {
     if (hasFetchedRescuers) return;
-    fetch('/api/volunteer?isAvailableNow=true')
+    setVolunteersLoading(true);
+    fetch('/api/volunteer?status=APPROVED')
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          const mapped = data.data.map((v: any) => ({
+          setVolunteers(data.data || []);
+          const mapped = (data.data || []).map((v: any) => ({
             name: v.name,
             status: v.isAvailableNow ? 'available' : 'busy',
             zone: v.assignedZone || v.municipality,
@@ -173,8 +179,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           setHasFetchedRescuers(true);
         }
       })
-      .catch(err => console.error('Failed to fetch rescuers:', err));
+      .catch(err => console.error('Failed to fetch rescuers:', err))
+      .finally(() => setVolunteersLoading(false));
   };
+
+  useEffect(() => {
+    fetchActiveRescuers();
+  }, []);
 
   const toggleLang = () => {
     const newLang = lang === 'en' ? 'ne' : 'en';
@@ -195,6 +206,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isEmergencyBannerOpen,
         setEmergencyBannerOpen,
         activeRescuers,
+        volunteers,
+        volunteersLoading,
         fetchActiveRescuers,
       }}
     >

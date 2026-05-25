@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const HF_TOKEN = process.env.HF_TOKEN;
 
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const isGeminiConfigured = Boolean(GEMINI_API_KEY && GEMINI_API_KEY !== 'YOUR_GEMINI_API_KEY_HERE');
+
 // Known snake species with detailed info for Rupandehi / Nepal region
 const SNAKE_DATABASE: Record<string, any> = {
   'king cobra': {
@@ -136,10 +139,17 @@ import axios from 'axios';
 
 // ... existing code down to the POST method ...
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+export async function GET() {
+  return NextResponse.json({
+    success: true,
+    enabled: isGeminiConfigured,
+    geminiConfigured: isGeminiConfigured,
+    hfConfigured: Boolean(HF_TOKEN && HF_TOKEN !== 'YOUR_HF_TOKEN_HERE'),
+  });
+}
 
 export async function POST(req: NextRequest) {
-  if (!GEMINI_API_KEY || GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY_HERE') {
+  if (!isGeminiConfigured) {
     return NextResponse.json(
       { success: false, error: 'GEMINI_API_KEY is not configured in environment variables.' },
       { status: 500 }

@@ -7,23 +7,23 @@ export async function GET(req: NextRequest) {
     const venomous = searchParams.get('venomous');
     const search = searchParams.get('search');
 
-    const where: Record<string, unknown> = {};
-    if (venomous === 'true') where.venomous = true;
-    if (venomous === 'false') where.venomous = false;
+    let query = db.from('SnakeSpecies').select('*');
+    if (venomous === 'true') query = query.eq('venomous', true);
+    if (venomous === 'false') query = query.eq('venomous', false);
     if (search) {
-      where.OR = [
-        { name: { contains: search } },
-        { scientificName: { contains: search } },
-        { nepaliName: { contains: search } },
-      ];
+      const searchValue = `%${search}%`;
+      query = query.or(
+        `name.ilike.${searchValue},scientificName.ilike.${searchValue},nepaliName.ilike.${searchValue}`
+      );
     }
 
-    const species = await db.snakeSpecies.findMany({
-      where,
-      orderBy: [{ venomous: 'desc' }, { name: 'asc' }],
-    });
+    const { data: species, error } = await query.order('venomous', { ascending: false }).order('name', { ascending: true });
+    if (error) {
+      console.error('GET /api/species error:', error);
+      return NextResponse.json({ success: false, error: 'Failed to fetch species' }, { status: 500 });
+    }
 
-    return NextResponse.json({ success: true, data: species });
+    return NextResponse.json({ success: true, data: species ?? [] });
   } catch (error) {
     console.error('GET /api/species error:', error);
     return NextResponse.json({ success: false, error: 'Failed to fetch species' }, { status: 500 });
@@ -39,8 +39,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
     }
 
-    const species = await db.snakeSpecies.create({
-      data: {
+    const { data: species, error } = await db
+      .from('SnakeSpecies')
+      .insert({
         name,
         scientificName,
         nepaliName,
@@ -51,8 +52,14 @@ export async function POST(req: NextRequest) {
         safetyTips: safetyTips || '',
         emergencyAdvice: emergencyAdvice || '',
         imageUrl: imageUrl || '',
-      },
-    });
+      })
+      .select()
+      .single();
+
+    if (error || !species) {
+      console.error('POST /api/species error:', error);
+      return NextResponse.json({ success: false, error: 'Failed to create species' }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true, data: species }, { status: 201 });
   } catch (error) {

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { randomUUID } from 'crypto';
 import { db } from '@/lib/db';
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -54,13 +55,18 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status');
     const limit = parseInt(searchParams.get('limit') || '50');
-    const where = status ? { status } : {};
-    const rescues = await db.rescueRequest.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      take: limit,
-    });
-    return NextResponse.json({ success: true, data: rescues });
+
+    let query = db.from('RescueRequest').select('*');
+    if (status) query = query.eq('status', status);
+
+    const { data: rescues, error } = await query.order('createdAt', { ascending: false }).limit(limit);
+
+    if (error) {
+      console.error('GET /api/rescue error:', error);
+      return NextResponse.json({ success: false, error: 'Failed to fetch rescue requests' }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, data: rescues ?? [] });
   } catch (error) {
     console.error('GET /api/rescue error:', error);
     return NextResponse.json({ success: false, error: 'Failed to fetch rescue requests' }, { status: 500 });
@@ -79,8 +85,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const rescue = await db.rescueRequest.create({
-      data: {
+    const { data: rescue, error } = await db
+      .from('RescueRequest')
+      .insert({
+        id: randomUUID(),
         name,
         phone,
         municipality: municipality || 'Butwal',
@@ -91,10 +99,15 @@ export async function POST(req: NextRequest) {
         notes: notes || null,
         status: 'PENDING',
         priority: 'HIGH',
-      },
-    });
+      })
+      .select()
+      .single();
 
-    // Fire and forget the Telegram alert so it doesn't block the user's response
+    if (error || !rescue) {
+      console.error('POST /api/rescue error:', error);
+      return NextResponse.json({ success: false, error: 'Failed to create rescue request' }, { status: 500 });
+    }
+
     sendTelegramAlert(rescue);
 
     return NextResponse.json({ success: true, data: rescue }, { status: 201 });

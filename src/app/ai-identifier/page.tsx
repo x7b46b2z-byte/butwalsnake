@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, X, Camera, AlertTriangle, ShieldCheck, Zap, Loader2, ChevronRight, RefreshCw } from 'lucide-react';
 import Navbar from '@/components/Navbar';
@@ -37,7 +37,29 @@ export default function AIIdentifierPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<SnakeResult | null>(null);
   const [error, setError] = useState('');
+  const [aiConfigured, setAiConfigured] = useState<boolean | null>(null);
+  const [aiConfigMessage, setAiConfigMessage] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    fetch('/api/ai-identify')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && typeof data.enabled === 'boolean') {
+          setAiConfigured(data.enabled);
+          if (!data.enabled) {
+            setAiConfigMessage('AI identifier is not configured. Set GEMINI_API_KEY in your environment.');
+          }
+        } else {
+          setAiConfigured(false);
+          setAiConfigMessage('Unable to verify AI configuration.');
+        }
+      })
+      .catch(() => {
+        setAiConfigured(false);
+        setAiConfigMessage('Unable to verify AI configuration.');
+      });
+  }, []);
 
   const handleFile = (file: File) => {
     if (!file.type.startsWith('image/')) { setError('Please upload an image file.'); return; }
@@ -59,6 +81,10 @@ export default function AIIdentifierPage() {
 
   const handleAnalyze = async () => {
     if (!imageFile) return;
+    if (aiConfigured === false) {
+      setError('AI identifier is not configured. Set GEMINI_API_KEY in your environment.');
+      return;
+    }
     setLoading(true);
     setError('');
     try {
@@ -167,16 +193,16 @@ export default function AIIdentifierPage() {
               </div>
             )}
 
-            {error && (
+            {(error || aiConfigMessage) && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-4 bg-red-500/15 border border-red-500/30 rounded-xl p-3 text-red-400 text-sm">
-                {error}
+                {error || aiConfigMessage}
               </motion.div>
             )}
 
             <div className="mt-5 flex gap-3">
               <button
                 onClick={handleAnalyze}
-                disabled={!imageFile || loading}
+                disabled={!imageFile || loading || aiConfigured === false}
                 className="flex-1 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-base"
               >
                 {loading ? <><Loader2 className="w-5 h-5 animate-spin" /> Analyzing...</> : <><span>🔍</span> Identify Snake</>}

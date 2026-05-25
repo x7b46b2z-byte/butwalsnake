@@ -13,8 +13,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'name and contact are required' }, { status: 400 });
     }
 
-    const volunteer = await db.volunteer.create({
-      data: {
+    const { data: volunteer, error } = await db
+      .from('Volunteer')
+      .insert({
         name,
         contact,
         address: address || '',
@@ -29,8 +30,14 @@ export async function POST(req: NextRequest) {
         assignedZone: assignedZone || null,
         isAvailableNow: isAvailableNow || false,
         description: description || null,
-      },
-    });
+      })
+      .select()
+      .single();
+
+    if (error || !volunteer) {
+      console.error('POST /api/volunteer error:', error);
+      return NextResponse.json({ success: false, error: 'Failed to submit volunteer application' }, { status: 500 });
+    }
 
     if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
       const telegramMessage = `
@@ -45,15 +52,24 @@ export async function POST(req: NextRequest) {
 Please review this application in the Admin Dashboard.
       `.trim();
 
-      fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: TELEGRAM_CHAT_ID,
-          text: telegramMessage,
-          parse_mode: 'Markdown',
-        }),
-      }).catch(console.error);
+      try {
+        const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: TELEGRAM_CHAT_ID,
+            text: telegramMessage,
+            parse_mode: 'Markdown',
+          }),
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Failed to send Telegram volunteer alert:', errorText);
+        }
+      } catch (error) {
+        console.error('Error sending Telegram volunteer alert:', error);
+      }
     }
 
     return NextResponse.json({ success: true, data: volunteer }, { status: 201 });
@@ -68,11 +84,18 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status');
     const isAvailableNow = searchParams.get('isAvailableNow');
-    const where: any = {};
-    if (status) where.status = status;
-    if (isAvailableNow === 'true') where.isAvailableNow = true;
-    const volunteers = await db.volunteer.findMany({ where, orderBy: { createdAt: 'desc' } });
-    return NextResponse.json({ success: true, data: volunteers });
+
+    let query = db.from('Volunteer').select('*');
+    if (status) query = query.eq('status', status);
+    if (isAvailableNow === 'true') query = query.eq('isAvailableNow', true);
+
+    const { data: volunteers, error } = await query.order('createdAt', { ascending: false });
+    if (error) {
+      console.error('GET /api/volunteer error:', error);
+      return NextResponse.json({ success: false, error: 'Failed to fetch volunteers' }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, data: volunteers ?? [] });
   } catch (error) {
     console.error('GET /api/volunteer error:', error);
     return NextResponse.json({ success: false, error: 'Failed to fetch volunteers' }, { status: 500 });

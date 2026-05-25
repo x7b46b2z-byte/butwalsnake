@@ -21,12 +21,8 @@ const CoverageMap = dynamic(() => import('@/components/CoverageMap'), {
 });
 
 export default function Home() {
-  const { t, activeRescuers, fetchActiveRescuers } = useApp();
+  const { t, activeRescuers, volunteers } = useApp();
   const [selectedRescuer, setSelectedRescuer] = React.useState<any>(null);
-
-  React.useEffect(() => {
-    fetchActiveRescuers();
-  }, [fetchActiveRescuers]);
 
   return (
     <div className="flex flex-col w-full bg-background overflow-x-hidden font-manrope">
@@ -218,7 +214,7 @@ export default function Home() {
             We provide swift, professional wildlife rescue across five major municipalities in Rupandehi District.
           </p>
         </div>
-        <CoverageMap />
+        <CoverageMap volunteers={volunteers} />
       </section>
 
       {/* 5. AWARENESS SECTION */}
