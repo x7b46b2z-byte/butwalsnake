@@ -1,6 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 
+function normalizeSlug(text: string) {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/(^-|-$)+/g, '');
+}
+
+async function ensureUniqueSlug(baseSlug: string) {
+  let slug = baseSlug;
+  let suffix = 1;
+
+  while (true) {
+    const { data, error } = await db.from('BlogPost').select('id').eq('slug', slug);
+    if (error) {
+      console.error('Slug uniqueness check failed:', error);
+      return slug;
+    }
+    if (!data || data.length === 0) {
+      return slug;
+    }
+    slug = `${baseSlug}-${suffix++}`;
+  }
+}
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -32,15 +59,18 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { title, slug, content, category, author, tags, status, imageUrl } = body;
 
-    if (!title || !slug || !content) {
+    if (!title || !content) {
       return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
     }
+
+    const normalizedSlug = normalizeSlug((slug || title || '').toString()) || `${Date.now()}`;
+    const uniqueSlug = await ensureUniqueSlug(normalizedSlug);
 
     const { data: blog, error } = await db
       .from('BlogPost')
       .insert({
         title,
-        slug,
+        slug: uniqueSlug,
         content,
         category: category || 'News',
         author: author || 'Admin',

@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
         behavior: behavior || '',
         safetyTips: safetyTips || '',
         emergencyAdvice: emergencyAdvice || '',
-        imageUrl: imageUrl || '',
+        imageUrl: imageUrl || null,
       })
       .select()
       .single();

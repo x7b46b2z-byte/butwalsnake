@@ -51,7 +51,7 @@ export default function AdminGalleryPage() {
         setForm({ imageUrl: '', caption: '', category: 'RESCUE', location: '' });
         setShowAdd(false);
         fetchGallery();
-      } else setAddError(data.error || 'Failed to add image.');
+      } else setAddError(data.error || res.statusText || 'Failed to add image.');
     } finally { setAdding(false); }
   };
 

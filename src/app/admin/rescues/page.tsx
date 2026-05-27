@@ -92,7 +92,7 @@ export default function AdminRescuesPage() {
       });
       const data = await res.json();
       if (data.success) { setAddForm({ ...BLANK_ADD }); setShowAdd(false); fetchRescues(); }
-      else setAddError(data.error || 'Failed to add rescue.');
+      else setAddError(data.error || res.statusText || 'Failed to add rescue.');
     } finally { setAdding(false); }
   };
 

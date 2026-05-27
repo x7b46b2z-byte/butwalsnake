@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { randomUUID } from 'crypto';
 import { db } from '@/lib/db';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, contact, address, municipality, experience, vehicle, availableTime, skills, emergencyAvailability, imageUrl, assignedZone, isAvailableNow, status, description } = body;
+    const { name, contact, address, municipality, experience, vehicle, availableTime, skills, emergencyAvailability, imageUrl, assignedZone, isAvailableNow, status } = body;
 
     const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
     const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
@@ -16,6 +17,7 @@ export async function POST(req: NextRequest) {
     const { data: volunteer, error } = await db
       .from('Volunteer')
       .insert({
+        id: randomUUID(),
         name,
         contact,
         address: address || '',
@@ -29,7 +31,6 @@ export async function POST(req: NextRequest) {
         imageUrl: imageUrl || null,
         assignedZone: assignedZone || null,
         isAvailableNow: isAvailableNow || false,
-        description: description || null,
       })
       .select()
       .single();

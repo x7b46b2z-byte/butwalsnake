@@ -83,7 +83,7 @@ export default function GalleryPage() {
             <p className="text-xl font-semibold text-white/50">No images found in this category.</p>
           </div>
         ) : (
-          <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <AnimatePresence>
               {filtered.map((item, i) => (
                 <motion.div
@@ -91,10 +91,10 @@ export default function GalleryPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className="break-inside-avoid relative group cursor-pointer"
+                  className="relative group cursor-pointer"
                   onClick={() => setSelectedImage(item)}
                 >
-                  <img src={item.imageUrl} alt={item.caption} className="w-full rounded-2xl object-cover border border-white/10 group-hover:border-emerald-500/50 transition-colors" />
+                  <img src={item.imageUrl} alt={item.caption} className="w-full h-auto rounded-2xl object-cover border border-white/10 group-hover:border-emerald-500/50 transition-colors" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl flex flex-col justify-end p-5">
                     <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/20 border border-emerald-500/30 px-2 py-1 rounded-md mb-2 w-max">{item.category}</span>
                     <p className="text-white font-medium text-sm line-clamp-2">{item.caption}</p>

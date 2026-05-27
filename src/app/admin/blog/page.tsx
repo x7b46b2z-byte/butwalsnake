@@ -48,7 +48,7 @@ export default function AdminBlogPage() {
       });
       const data = await res.json();
       if (data.success) { setAddForm(BLANK_BLOG); setShowAdd(false); fetchBlogs(); }
-      else setAddError(data.error || 'Failed to add article.');
+      else setAddError(data.error || res.statusText || 'Failed to add article.');
     } finally { setAdding(false); }
   };
 

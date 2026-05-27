@@ -48,7 +48,7 @@ export default function AdminSpeciesPage() {
       });
       const data = await res.json();
       if (data.success) { setAddForm(BLANK_SPECIES); setShowAdd(false); fetchSpecies(); }
-      else setAddError(data.error || 'Failed to add species.');
+      else setAddError(data.error || res.statusText || 'Failed to add species.');
     } finally { setAdding(false); }
   };
 

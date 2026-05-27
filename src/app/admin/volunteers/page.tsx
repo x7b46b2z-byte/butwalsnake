@@ -53,7 +53,7 @@ export default function AdminVolunteersPage() {
       });
       const data = await res.json();
       if (data.success) { setAddForm(BLANK_VOLUNTEER); setShowAdd(false); fetchVolunteers(); }
-      else setAddError(data.error || 'Failed to add volunteer.');
+      else setAddError(data.error || res.statusText || 'Failed to add volunteer.');
     } finally { setAdding(false); }
   };
 
@@ -186,7 +186,6 @@ export default function AdminVolunteersPage() {
                       </select>
                     </div>
                   </div>
-                  <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Description / About</label><textarea value={editForm.description || ''} onChange={e => setEditForm(p => p ? ({ ...p, description: e.target.value }) : null)} placeholder="Volunteer description..." rows={3} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 resize-none" /></div>
                   <div><label className="flex items-center gap-2 text-white font-medium cursor-pointer"><input type="checkbox" checked={editForm.isAvailableNow} onChange={e => setEditForm(p => p ? ({ ...p, isAvailableNow: e.target.checked }) : null)} className="w-5 h-5 accent-emerald-500 rounded" /> Available for rescues right now</label></div>
                   
                   {addError && <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-2">{addError}</p>}
@@ -290,8 +289,6 @@ export default function AdminVolunteersPage() {
                     </label>
                   </div>
                 </div>
-                <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Description / About</label><textarea value={addForm.description} onChange={e => setAddForm(p => ({ ...p, description: e.target.value }))} placeholder="Volunteer description..." rows={3} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:border-emerald-500 resize-none" /></div>
-                
                 {addError && <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-2">{addError}</p>}
                 <button onClick={handleAdd} disabled={adding} className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-bold py-3 rounded-xl flex items-center justify-center gap-2">
                   {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Add Volunteer'}

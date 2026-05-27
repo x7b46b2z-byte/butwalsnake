@@ -27,8 +27,9 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { imageUrl, caption, category, location } = body;
+    const categoryValue = category || 'RESCUE';
 
-    if (!imageUrl || !caption || !category) {
+    if (!imageUrl || !caption) {
       return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
     }
 
@@ -37,8 +38,8 @@ export async function POST(req: NextRequest) {
       .insert({
         imageUrl,
         caption,
-        category,
-        location: location || '',
+        category: categoryValue,
+        location: location || null,
       })
       .select()
       .single();
