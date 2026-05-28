@@ -39,12 +39,37 @@ export default function AdminSpeciesPage() {
 
   const handleAdd = async () => {
     setAddError('');
-    if (!addForm.name || !addForm.scientificName || !addForm.nepaliName || !addForm.imageUrl) { setAddError('Name, Scientific Name, Nepali Name, and Image URL are required.'); return; }
+    const name = addForm.name.trim();
+    const scientificName = addForm.scientificName.trim();
+    const nepaliName = addForm.nepaliName.trim();
+    const habitat = addForm.habitat.trim();
+    const identificationGuide = addForm.identificationGuide.trim();
+    const behavior = addForm.behavior.trim();
+    const safetyTips = addForm.safetyTips.trim();
+    const emergencyAdvice = addForm.emergencyAdvice.trim();
+    const imageUrl = addForm.imageUrl?.trim() || '';
+
+    if (!name || !scientificName || !nepaliName || !imageUrl) {
+      setAddError('Name, Scientific Name, Nepali Name, and Image URL are required.');
+      return;
+    }
+
     setAdding(true);
     try {
       const res = await fetch('/api/species', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(addForm),
+        body: JSON.stringify({
+          name,
+          scientificName,
+          nepaliName,
+          venomous: addForm.venomous,
+          habitat,
+          identificationGuide,
+          behavior,
+          safetyTips,
+          emergencyAdvice,
+          imageUrl,
+        }),
       });
       const data = await res.json();
       if (data.success) { setAddForm(BLANK_SPECIES); setShowAdd(false); fetchSpecies(); }

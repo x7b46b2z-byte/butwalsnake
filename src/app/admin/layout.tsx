@@ -73,10 +73,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group ${
                 active
                   ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  : 'text-white bg-white/10'
               }`}
             >
-              <item.icon className={`w-5 h-5 ${active ? 'text-emerald-400' : 'text-gray-500 group-hover:text-gray-300'}`} />
+              <item.icon className={`w-5 h-5 ${active ? 'text-emerald-400' : 'text-gray-300'}`} />
               <span className="text-sm font-medium">{item.label}</span>
               {active && <ChevronRight className="w-4 h-4 ml-auto opacity-60" />}
             </Link>
@@ -86,13 +86,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Footer */}
       <div className="px-3 py-4 border-t border-white/5 space-y-2">
-        <Link href="/" className="flex items-center gap-3 px-3 py-2 rounded-xl text-gray-500 hover:text-white hover:bg-white/5 transition-all text-sm">
+        <Link href="/" className="flex items-center gap-3 px-3 py-2 rounded-xl text-white bg-white/10 transition-all text-sm">
           <ShieldAlert className="w-4 h-4" /> View Public Site
         </Link>
         <button
           onClick={handleLogout}
           disabled={loggingOut}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-red-400 hover:bg-red-500/10 transition-all text-sm disabled:opacity-50"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-white bg-red-500/30 transition-all text-sm disabled:opacity-50"
         >
           <LogOut className="w-4 h-4" /> {loggingOut ? 'Signing out...' : 'Sign Out'}
         </button>

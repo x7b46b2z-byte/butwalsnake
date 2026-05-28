@@ -39,19 +39,35 @@ export default function AdminGalleryPage() {
 
   const handleAdd = async () => {
     setAddError('');
-    if (!form.imageUrl || !form.caption) { setAddError('Image URL and Caption are required.'); return; }
+    const imageUrl = form.imageUrl.trim();
+    const caption = form.caption.trim();
+    const location = form.location.trim();
+
+    if (!imageUrl || !caption) {
+      setAddError('Image URL and Caption are required.');
+      return;
+    }
+
     setAdding(true);
     try {
       const res = await fetch('/api/gallery', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageUrl,
+          caption,
+          category: form.category || 'RESCUE',
+          location: location || undefined,
+        }),
       });
       const data = await res.json();
       if (data.success) {
         setForm({ imageUrl: '', caption: '', category: 'RESCUE', location: '' });
         setShowAdd(false);
         fetchGallery();
-      } else setAddError(data.error || res.statusText || 'Failed to add image.');
+      } else {
+        setAddError(data.error || res.statusText || 'Failed to add image.');
+      }
     } finally { setAdding(false); }
   };
 
@@ -117,20 +133,20 @@ export default function AdminGalleryPage() {
                 <button onClick={() => setShowAdd(false)} className="text-gray-500 hover:text-white"><X className="w-5 h-5" /></button>
               </div>
               <div className="p-6 space-y-4">
-                <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Image URL *</label><input value={form.imageUrl} onChange={e => setForm(p => ({ ...p, imageUrl: e.target.value }))} placeholder="https://..." className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-emerald-500" /></div>
-                <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Caption *</label><input value={form.caption} onChange={e => setForm(p => ({ ...p, caption: e.target.value }))} placeholder="Rescuing a python..." className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-emerald-500" /></div>
-                <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Category</label>
-                  <select value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-emerald-500 appearance-none">
+                <div><label className="text-xs text-emerald-400 mb-1.5 block font-medium">Image URL *</label><input value={form.imageUrl} onChange={e => setForm(p => ({ ...p, imageUrl: e.target.value }))} placeholder="https://..." className="w-full bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-4 py-3 text-white" /></div>
+                <div><label className="text-xs text-emerald-400 mb-1.5 block font-medium">Caption *</label><input value={form.caption} onChange={e => setForm(p => ({ ...p, caption: e.target.value }))} placeholder="Rescuing a python..." className="w-full bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-4 py-3 text-white" /></div>
+                <div><label className="text-xs text-emerald-400 mb-1.5 block font-medium">Category</label>
+                  <select value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} className="w-full bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-4 py-3 text-white appearance-none">
                     {CATEGORIES.map(c => <option key={c} value={c} className="bg-[#0f1a1c]">{c}</option>)}
                   </select>
                 </div>
-                <div><label className="text-xs text-gray-500 mb-1.5 block font-medium">Location (Optional)</label><input value={form.location} onChange={e => setForm(p => ({ ...p, location: e.target.value }))} placeholder="Butwal, Ward 12" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-emerald-500" /></div>
+                <div><label className="text-xs text-emerald-400 mb-1.5 block font-medium">Location (Optional)</label><input value={form.location} onChange={e => setForm(p => ({ ...p, location: e.target.value }))} placeholder="Butwal, Ward 12" className="w-full bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-4 py-3 text-white" /></div>
 
                 {addError && <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-2">{addError}</p>}
                 
                 {form.imageUrl && <div className="h-32 rounded-xl bg-cover bg-center border border-white/10" style={{ backgroundImage: `url(${form.imageUrl})` }} />}
 
-                <button onClick={handleAdd} disabled={adding} className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-bold py-3.5 rounded-xl flex items-center justify-center gap-2">
+                <button onClick={handleAdd} disabled={adding} className="w-full bg-emerald-500 disabled:opacity-50 text-black font-bold py-3.5 rounded-xl flex items-center justify-center gap-2">
                   {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Upload Image'}
                 </button>
               </div>

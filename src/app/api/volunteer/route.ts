@@ -31,13 +31,14 @@ export async function POST(req: NextRequest) {
         imageUrl: imageUrl || null,
         assignedZone: assignedZone || null,
         isAvailableNow: isAvailableNow || false,
+        createdAt: new Date().toISOString(),
       })
       .select()
       .single();
 
     if (error || !volunteer) {
       console.error('POST /api/volunteer error:', error);
-      return NextResponse.json({ success: false, error: 'Failed to submit volunteer application' }, { status: 500 });
+      return NextResponse.json({ success: false, error: error?.message || 'Failed to submit volunteer application' }, { status: 500 });
     }
 
     if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { BookOpen, Clock, User, ArrowRight, Search } from 'lucide-react';
 import Navbar from '@/components/Navbar';
@@ -38,19 +39,40 @@ function readTime(content: string) {
 }
 
 export default function BlogPage() {
+  const router = useRouter();
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null);
 
   useEffect(() => {
-    fetch('/api/blog')
-      .then(r => r.json())
-      .then(data => {
-        if (data.success) setBlogs(data.data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+    let mounted = true;
+    const loadBlogs = async () => {
+      setLoading(true);
+      try {
+        const r = await fetch('/api/blog?status=PUBLISHED');
+        const data = await r.json();
+        if (mounted && data.success) setBlogs(data.data);
+      } catch (e) {
+        // ignore
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    loadBlogs();
+
+    // listen for cross-tab updates
+    let channel: BroadcastChannel | null = null;
+    try {
+      channel = new BroadcastChannel('blog-updates');
+      channel.onmessage = (ev) => {
+        if (ev.data && ev.data.type === 'updated') loadBlogs();
+      };
+    } catch (e) {
+      // BroadcastChannel not supported
+    }
+
+    return () => { mounted = false; if (channel) channel.close(); };
   }, []);
 
   const filtered = blogs.filter(b =>
@@ -60,52 +82,6 @@ export default function BlogPage() {
     b.author.toLowerCase().includes(search.toLowerCase()) ||
     b.category.toLowerCase().includes(search.toLowerCase())
   );
-
-  if (selectedBlog) {
-    return (
-      <div className="min-h-screen bg-[#0f1a1c]">
-        <Navbar />
-        <div className="max-w-3xl mx-auto px-4 py-12">
-          <button onClick={() => setSelectedBlog(null)} className="flex items-center gap-2 text-emerald-400 hover:text-emerald-300 mb-8 font-medium transition-colors">
-            ← Back to Blog
-          </button>
-          <motion.article initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <div className="h-64 bg-gradient-to-br from-emerald-900/40 to-slate-900/60 rounded-2xl mb-8 flex items-center justify-center border border-white/10 relative overflow-hidden">
-              {selectedBlog.imageUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={selectedBlog.imageUrl} alt={selectedBlog.title} className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-8xl opacity-30">🐍</span>
-              )}
-            </div>
-            <div className="flex flex-wrap gap-2 mb-4">
-              <span className="text-xs font-semibold px-3 py-1 rounded-full border bg-blue-500/20 text-blue-400 border-blue-500/30">
-                {selectedBlog.category}
-              </span>
-              {(selectedBlog.tags || '').split(',').filter(Boolean).map((tag, i) => (
-                <span key={tag} className={`text-xs font-semibold px-3 py-1 rounded-full border ${TAG_COLORS[i % TAG_COLORS.length]}`}>
-                  {tag.trim()}
-                </span>
-              ))}
-            </div>
-            <h1 className="text-4xl font-bold text-white mb-4 leading-tight">{selectedBlog.title}</h1>
-            <div className="flex items-center gap-4 text-gray-400 text-sm mb-8 border-b border-white/10 pb-6">
-              <span className="flex items-center gap-1.5"><User className="w-4 h-4" />{selectedBlog.author}</span>
-              <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" />{formatDate(selectedBlog.createdAt)}</span>
-              <span className="flex items-center gap-1.5"><BookOpen className="w-4 h-4" />{readTime(selectedBlog.content)} min read</span>
-            </div>
-            <div className="prose prose-invert max-w-none text-gray-300 leading-relaxed space-y-4">
-              {selectedBlog.content.split('\n').map((para, i) => (
-                para.trim() && <p key={i}>{para}</p>
-              ))}
-            </div>
-          </motion.article>
-        </div>
-        <Footer />
-        <FloatingWidgets />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[#0f1a1c]">
@@ -160,7 +136,7 @@ export default function BlogPage() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                onClick={() => setSelectedBlog(filtered[0])}
+                onClick={() => router.push(`/blog/${filtered[0].slug}`)}
                 className="glass-card rounded-2xl overflow-hidden border border-emerald-500/20 mb-8 cursor-pointer hover:border-emerald-500/50 transition-all group"
               >
                 <div className="flex flex-col md:flex-row">
@@ -193,13 +169,13 @@ export default function BlogPage() {
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filtered.slice(search ? 0 : 1).map((blog, i) => (
+                      {filtered.slice(search ? 0 : 1).map((blog, i) => (
                 <motion.div
                   key={blog.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.07 }}
-                  onClick={() => setSelectedBlog(blog)}
+                  onClick={() => router.push(`/blog/${blog.slug}`)}
                   className="glass-card rounded-2xl overflow-hidden border border-white/10 hover:border-emerald-500/40 cursor-pointer group transition-all hover:scale-[1.02]"
                 >
                   <div className="h-44 bg-gradient-to-br from-emerald-900/30 to-slate-900/50 flex items-center justify-center border-b border-white/5 relative overflow-hidden">

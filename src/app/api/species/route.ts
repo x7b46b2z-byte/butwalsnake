@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { randomUUID } from 'crypto';
 import { db } from '@/lib/db';
 
 export async function GET(req: NextRequest) {
@@ -42,6 +43,7 @@ export async function POST(req: NextRequest) {
     const { data: species, error } = await db
       .from('SnakeSpecies')
       .insert({
+        id: randomUUID(),
         name,
         scientificName,
         nepaliName,
@@ -52,13 +54,14 @@ export async function POST(req: NextRequest) {
         safetyTips: safetyTips || '',
         emergencyAdvice: emergencyAdvice || '',
         imageUrl: imageUrl || null,
+        createdAt: new Date().toISOString(),
       })
       .select()
       .single();
 
     if (error || !species) {
       console.error('POST /api/species error:', error);
-      return NextResponse.json({ success: false, error: 'Failed to create species' }, { status: 500 });
+      return NextResponse.json({ success: false, error: error?.message || 'Failed to create species' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, data: species }, { status: 201 });

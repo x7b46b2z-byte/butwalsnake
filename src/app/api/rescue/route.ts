@@ -99,13 +99,14 @@ export async function POST(req: NextRequest) {
         notes: notes || null,
         status: 'PENDING',
         priority: 'HIGH',
+        createdAt: new Date().toISOString(),
       })
       .select()
       .single();
 
     if (error || !rescue) {
       console.error('POST /api/rescue error:', error);
-      return NextResponse.json({ success: false, error: 'Failed to create rescue request' }, { status: 500 });
+      return NextResponse.json({ success: false, error: error?.message || 'Failed to create rescue request' }, { status: 500 });
     }
 
     sendTelegramAlert(rescue);

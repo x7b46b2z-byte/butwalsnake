@@ -1,0 +1,57 @@
+
+> butwal-snake-rescuers@0.1.0 build
+> next build
+
+▲ Next.js 16.2.6 (Turbopack)
+- Environments: .env.local, .env
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 8.8s
+  Running TypeScript ...
+  Finished TypeScript in 14.8s ...
+  Collecting page data using 11 workers ...
+  Generating static pages using 11 workers (0/29) ...
+  Generating static pages using 11 workers (7/29) 
+  Generating static pages using 11 workers (14/29) 
+  Generating static pages using 11 workers (21/29) 
+✓ Generating static pages using 11 workers (29/29) in 750ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /admin
+├ ○ /admin/blog
+├ ○ /admin/gallery
+├ ○ /admin/login
+├ ○ /admin/rescues
+├ ○ /admin/species
+├ ○ /admin/volunteers
+├ ○ /ai-identifier
+├ ƒ /api/ai-identify
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/blog
+├ ƒ /api/blog/[id]
+├ ƒ /api/contact
+├ ƒ /api/gallery
+├ ƒ /api/gallery/[id]
+├ ƒ /api/rescue
+├ ƒ /api/rescue/[id]
+├ ƒ /api/species
+├ ƒ /api/species/[id]
+├ ƒ /api/volunteer
+├ ƒ /api/volunteer/[id]
+├ ○ /blog
+├ ○ /contact
+├ ○ /donate
+├ ○ /emergency
+├ ○ /firstaid
+├ ○ /gallery
+├ ○ /snakes
+└ ○ /volunteer
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
