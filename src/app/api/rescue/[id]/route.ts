@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { getTelegramStatus, sendTelegramMessage } from '@/lib/telegram';
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-  const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
-
   async function sendRescueUpdateAlert(rescue: any, oldRescue: any) {
-    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
+    if (!getTelegramStatus().enabled) return;
 
     const changes = [];
     if (oldRescue.status !== rescue.status) {
@@ -27,23 +25,9 @@ ${changes.length > 0 ? changes.join('\n') : '*Rescue details updated.*'}
 *Address:* ${rescue.address}
 `.trim();
 
-    try {
-      const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: TELEGRAM_CHAT_ID,
-          text: message,
-          parse_mode: 'Markdown',
-        }),
-      });
-
-      if (!response.ok) {
-        const errText = await response.text();
-        console.error('Failed to send Telegram rescue update alert:', errText);
-      }
-    } catch (error) {
-      console.error('Error sending Telegram alert:', error);
+    const result = await sendTelegramMessage(message, { parseMode: 'Markdown' });
+    if (!result.success) {
+      console.error('Failed to send Telegram rescue update alert:', result.error);
     }
   }
   try {
@@ -105,11 +89,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-  const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
-
   async function sendRescueDeleteAlert(rescue: any) {
-    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
+    if (!getTelegramStatus().enabled) return;
 
     const message = `
 🗑️ *RESCUE REQUEST REMOVED — ${rescue.municipality}*
@@ -119,23 +100,9 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 *Status:* ${rescue.status}
 `.trim();
 
-    try {
-      const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: TELEGRAM_CHAT_ID,
-          text: message,
-          parse_mode: 'Markdown',
-        }),
-      });
-
-      if (!response.ok) {
-        const errText = await response.text();
-        console.error('Failed to send Telegram rescue delete alert:', errText);
-      }
-    } catch (error) {
-      console.error('Error sending Telegram alert:', error);
+    const result = await sendTelegramMessage(message, { parseMode: 'Markdown' });
+    if (!result.success) {
+      console.error('Failed to send Telegram rescue delete alert:', result.error);
     }
   }
 

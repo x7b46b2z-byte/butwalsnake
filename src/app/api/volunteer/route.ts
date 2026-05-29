@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
 import { db } from '@/lib/db';
+import { getTelegramStatus, sendTelegramMessage } from '@/lib/telegram';
 
 export async function POST(req: NextRequest) {
   try {
@@ -41,7 +42,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: error?.message || 'Failed to submit volunteer application' }, { status: 500 });
     }
 
-    if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
+    if (getTelegramStatus().enabled) {
       const telegramMessage = `
 🆕 *NEW VOLUNTEER APPLICATION*
 
@@ -54,23 +55,9 @@ export async function POST(req: NextRequest) {
 Please review this application in the Admin Dashboard.
       `.trim();
 
-      try {
-        const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: TELEGRAM_CHAT_ID,
-            text: telegramMessage,
-            parse_mode: 'Markdown',
-          }),
-        });
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Failed to send Telegram volunteer alert:', errorText);
-        }
-      } catch (error) {
-        console.error('Error sending Telegram volunteer alert:', error);
+      const result = await sendTelegramMessage(telegramMessage, { parseMode: 'Markdown' });
+      if (!result.success) {
+        console.error('Failed to send Telegram volunteer alert:', result.error);
       }
     }
 

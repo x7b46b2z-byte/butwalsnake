@@ -96,27 +96,27 @@ export default function ContactPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
                     <label className="text-sm text-gray-400 font-medium mb-2 block">{t('yourName')}</label>
-                    <input value={form.name} onChange={e => update('name', e.target.value)} placeholder="Full name" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 transition-colors" />
+                    <input value={form.name} onChange={e => update('name', e.target.value)} placeholder="Full name" className="w-full bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-4 py-3 text-white placeholder-gray-400" />
                   </div>
                   <div>
                     <label className="text-sm text-gray-400 font-medium mb-2 block">{t('phone')}</label>
-                    <input value={form.phone} onChange={e => update('phone', e.target.value)} placeholder="98XXXXXXXX" type="tel" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 transition-colors" />
+                    <input value={form.phone} onChange={e => update('phone', e.target.value)} placeholder="98XXXXXXXX" type="tel" className="w-full bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-4 py-3 text-white placeholder-gray-400" />
                   </div>
                 </div>
                 <div>
                   <label className="text-sm text-gray-400 font-medium mb-2 block">{t('email')}</label>
-                  <input value={form.email} onChange={e => update('email', e.target.value)} placeholder="you@example.com" type="email" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 transition-colors" />
+                  <input value={form.email} onChange={e => update('email', e.target.value)} placeholder="you@example.com" type="email" className="w-full bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-4 py-3 text-white placeholder-gray-400" />
                 </div>
                 <div>
                   <label className="text-sm text-gray-400 font-medium mb-2 block">{t('subject')}</label>
-                  <input value={form.subject} onChange={e => update('subject', e.target.value)} placeholder="What's this about?" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 transition-colors" />
+                  <input value={form.subject} onChange={e => update('subject', e.target.value)} placeholder="What's this about?" className="w-full bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-4 py-3 text-white placeholder-gray-400" />
                 </div>
                 <div>
                   <label className="text-sm text-gray-400 font-medium mb-2 block">{t('message')}</label>
-                  <textarea value={form.message} onChange={e => update('message', e.target.value)} placeholder="How can we help you?" rows={4} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 transition-colors resize-none" />
+                  <textarea value={form.message} onChange={e => update('message', e.target.value)} placeholder="How can we help you?" rows={4} className="w-full bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-4 py-3 text-white placeholder-gray-400 resize-none" />
                 </div>
                 {error && <div className="bg-red-500/20 border border-red-500/40 rounded-xl p-3 text-red-400 text-sm">{error}</div>}
-                <button type="submit" disabled={loading} className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-bold py-3.5 rounded-xl transition-colors flex items-center justify-center gap-2">
+                <button type="submit" disabled={loading} className="w-full bg-emerald-500 disabled:opacity-50 text-black font-bold py-3.5 rounded-xl flex items-center justify-center gap-2">
                   {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                   {loading ? t('sending') : t('sendBtn')}
                 </button>

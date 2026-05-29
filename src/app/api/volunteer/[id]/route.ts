@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { getTelegramStatus, sendTelegramMessage } from '@/lib/telegram';
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-  const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
-
   async function sendVolunteerApprovedAlert(volunteer: any) {
-    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
+    if (!getTelegramStatus().enabled) return;
 
     const message = `
 ✅ *NEW VOLUNTEER APPROVED*

@@ -40,6 +40,9 @@ export default function AdminDashboardPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [recentRescues, setRecentRescues] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [telegramStatus, setTelegramStatus] = useState<{ enabled: boolean; botTokenSet: boolean; chatIdSet: boolean } | null>(null);
+  const [testingTelegram, setTestingTelegram] = useState(false);
+  const [telegramResult, setTelegramResult] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -70,6 +73,40 @@ export default function AdminDashboardPage() {
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const fetchTelegramStatus = async () => {
+      try {
+        const response = await fetch('/api/telegram/status');
+        const json = await response.json();
+        if (json.success) setTelegramStatus(json.data);
+      } catch (error) {
+        console.error('Failed to load Telegram status:', error);
+      }
+    };
+    fetchTelegramStatus();
+  }, []);
+
+  const handleSendTestTelegram = async () => {
+    setTestingTelegram(true);
+    setTelegramResult(null);
+    try {
+      const response = await fetch('/api/telegram/test', { method: 'POST' });
+      const json = await response.json();
+      if (json.success) {
+        setTelegramResult('Telegram test alert sent successfully.');
+      } else {
+        setTelegramResult(`Telegram test failed: ${json.error || 'unknown error'}`);
+      }
+      if (response.ok && json.success) {
+        setTelegramStatus((prev) => prev ?? { enabled: true, botTokenSet: true, chatIdSet: true });
+      }
+    } catch (error) {
+      setTelegramResult(`Telegram test failed: ${(error as Error).message}`);
+    } finally {
+      setTestingTelegram(false);
+    }
+  };
 
   const STATUS_COLORS: Record<string, string> = {
     PENDING: 'text-yellow-400 bg-yellow-500/20 border-yellow-500/30',
@@ -135,6 +172,25 @@ export default function AdminDashboardPage() {
               ))}
             </tbody>
           </table>
+        </div>
+      </div>
+      <div className="glass-card rounded-2xl border border-white/10 p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+          <div>
+            <h3 className="text-white font-bold">Telegram Alerts</h3>
+            <p className="text-gray-400 text-sm">Verify Telegram integration and send a quick test alert from admin.</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className={`text-xs font-semibold px-3 py-1 rounded-full ${telegramStatus?.enabled ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-red-500/20 text-red-300 border border-red-500/30'}`}>
+              {telegramStatus?.enabled ? 'Enabled' : 'Disabled'}
+            </span>
+            <button onClick={handleSendTestTelegram} disabled={testingTelegram} className="bg-emerald-500 hover:bg-emerald-400 text-black px-4 py-2 rounded-xl font-semibold transition-colors disabled:opacity-50">
+              {testingTelegram ? 'Sending...' : 'Send test alert'}
+            </button>
+          </div>
+        </div>
+        <div className="text-sm text-gray-300">
+          {telegramResult ?? (telegramStatus ? `Bot token: ${telegramStatus.botTokenSet ? 'set' : 'missing'}, Chat ID: ${telegramStatus.chatIdSet ? 'set' : 'missing'}` : 'Checking Telegram status...')}
         </div>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">

@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
 import { db } from '@/lib/db';
-
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+import { getTelegramStatus, sendTelegramMessage } from '@/lib/telegram';
 
 async function sendTelegramAlert(rescue: any) {
-  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
+  if (!getTelegramStatus().enabled) {
     console.warn('Telegram credentials not set. Skipping volunteer alert.');
     return;
   }
@@ -27,26 +25,11 @@ async function sendTelegramAlert(rescue: any) {
 ⚠️ *Please reply in the group if you are responding to this incident!*
   `.trim();
 
-  try {
-    const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: TELEGRAM_CHAT_ID,
-        text: message,
-        parse_mode: 'Markdown',
-        disable_web_page_preview: false,
-      }),
-    });
-
-    if (!res.ok) {
-      const errText = await res.text();
-      console.error('Failed to send Telegram alert:', errText);
-    } else {
-      console.log('Telegram alert sent successfully to group.');
-    }
-  } catch (error) {
-    console.error('Error sending Telegram alert:', error);
+  const result = await sendTelegramMessage(message, { parseMode: 'Markdown', disableWebPagePreview: false });
+  if (!result.success) {
+    console.error('Failed to send Telegram alert:', result.error);
+  } else {
+    console.log('Telegram alert sent successfully to group.');
   }
 }
 

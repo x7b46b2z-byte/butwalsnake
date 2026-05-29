@@ -58,6 +58,8 @@ https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates
 
 Alternatively, use a Telegram bot such as [@getidsbot](https://t.me/getidsbot) or [@userinfobot](https://t.me/userinfobot) to retrieve the chat ID.
 
+After configuration, the admin dashboard includes a Telegram alert panel where you can verify the integration and send a test alert directly from the app.
+
 Then restart the dev server.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.

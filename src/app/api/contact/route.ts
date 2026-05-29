@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getTelegramStatus, sendTelegramMessage } from '@/lib/telegram';
 
 export async function POST(req: NextRequest) {
-  const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-  const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
-
   try {
     const body = await req.json();
     const { name, email, phone, subject, message } = body;
@@ -12,7 +10,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Name and message are required' }, { status: 400 });
     }
 
-    if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
+    if (getTelegramStatus().enabled) {
       const telegramMessage = `
 📩 *NEW CONTACT FORM MESSAGE*
 
@@ -25,19 +23,9 @@ export async function POST(req: NextRequest) {
 ${message}
       `.trim();
 
-      const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: TELEGRAM_CHAT_ID,
-          text: telegramMessage,
-          parse_mode: 'Markdown',
-        }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Failed to send Telegram contact alert:', errorText);
+      const result = await sendTelegramMessage(telegramMessage, { parseMode: 'Markdown' });
+      if (!result.success) {
+        console.error('Failed to send Telegram contact alert:', result.error);
       }
     }
 

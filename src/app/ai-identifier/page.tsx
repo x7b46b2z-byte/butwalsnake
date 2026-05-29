@@ -160,7 +160,7 @@ export default function AIIdentifierPage() {
                 className={`relative cursor-pointer rounded-3xl border-2 border-dashed p-12 text-center transition-all duration-300 ${
                   dragOver
                     ? 'border-emerald-400 bg-emerald-500/10 scale-[1.02]'
-                    : 'border-white/10 bg-white/3 hover:border-emerald-500/50 hover:bg-emerald-500/5'
+                    : 'border-emerald-500/30 bg-emerald-500/10'
                 }`}
               >
                 <div className="w-20 h-20 bg-emerald-500/15 rounded-full flex items-center justify-center mx-auto mb-5 border border-emerald-500/30">
@@ -168,7 +168,7 @@ export default function AIIdentifierPage() {
                 </div>
                 <p className="text-white font-semibold text-lg mb-2">Drop your photo here</p>
                 <p className="text-gray-500 text-sm mb-4">or click to browse — JPG, PNG, WEBP up to 10MB</p>
-                <div className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black font-bold px-6 py-3 rounded-xl text-sm transition-colors">
+                <div className="inline-flex items-center gap-2 bg-emerald-500 text-black font-bold px-6 py-3 rounded-xl text-sm transition-colors">
                   <Upload className="w-4 h-4" /> Choose Photo
                 </div>
                 <input
@@ -203,12 +203,12 @@ export default function AIIdentifierPage() {
               <button
                 onClick={handleAnalyze}
                 disabled={!imageFile || loading || aiConfigured === false}
-                className="flex-1 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-base"
+                className="flex-1 bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-black font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-base"
               >
                 {loading ? <><Loader2 className="w-5 h-5 animate-spin" /> Analyzing...</> : <><span>🔍</span> Identify Snake</>}
               </button>
               {imagePreview && (
-                <button onClick={reset} className="bg-white/5 border border-white/10 text-gray-400 hover:text-white rounded-2xl px-5 transition-colors">
+                <button onClick={reset} className="bg-emerald-500/10 border border-emerald-500/30 text-white rounded-2xl px-5 transition-colors">
                   <RefreshCw className="w-5 h-5" />
                 </button>
               )}
@@ -314,7 +314,7 @@ export default function AIIdentifierPage() {
 
                   {/* Emergency CTA */}
                   {(result.dangerLevel === 'HIGHLY VENOMOUS' || result.dangerLevel === 'MILDLY VENOMOUS') && (
-                    <Link href="/emergency" className="flex items-center justify-between bg-red-600 hover:bg-red-700 text-white px-5 py-4 rounded-2xl transition-colors group">
+                    <Link href="/emergency" className="flex items-center justify-between bg-red-600 text-white px-5 py-4 rounded-2xl transition-colors group">
                       <span className="font-bold">🚨 Report Emergency Sighting</span>
                       <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </Link>

@@ -143,7 +143,7 @@ export default function BlogPage() {
                   <div className="md:w-2/5 h-56 md:h-auto bg-gradient-to-br from-emerald-900/60 to-slate-900/60 flex items-center justify-center border-b md:border-b-0 md:border-r border-white/10 relative overflow-hidden">
                     {filtered[0].imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={filtered[0].imageUrl} alt={filtered[0].title} className="w-full h-full object-cover mix-blend-luminosity hover:mix-blend-normal transition-all" />
+                      <img src={filtered[0].imageUrl} alt={filtered[0].title} className="w-full h-full object-cover transition-all" />
                     ) : (
                       <span className="text-9xl opacity-30">🐍</span>
                     )}
@@ -153,8 +153,8 @@ export default function BlogPage() {
                       <span className="text-xs bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 px-3 py-1 rounded-full font-semibold">Featured</span>
                       <span className="text-xs bg-blue-500/20 border border-blue-500/40 text-blue-400 px-3 py-1 rounded-full font-semibold">{filtered[0].category}</span>
                     </div>
-                    <h2 className="text-2xl font-bold text-white mb-3 group-hover:text-emerald-400 transition-colors leading-tight">{filtered[0].title}</h2>
-                    <p className="text-gray-400 text-sm mb-4 line-clamp-2">{filtered[0].content.slice(0, 150)}...</p>
+                    <h2 className="text-2xl font-bold text-emerald-200 mb-3 group-hover:text-emerald-400 transition-colors leading-tight">{filtered[0].title}</h2>
+                    <p className="text-gray-300 text-sm mb-4 line-clamp-2">{filtered[0].content.slice(0, 150)}...</p>
                     <div className="flex items-center gap-4 text-gray-500 text-xs">
                       <span className="flex items-center gap-1"><User className="w-3 h-3" />{filtered[0].author}</span>
                       <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{formatDate(filtered[0].createdAt)}</span>
@@ -176,12 +176,12 @@ export default function BlogPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.07 }}
                   onClick={() => router.push(`/blog/${blog.slug}`)}
-                  className="glass-card rounded-2xl overflow-hidden border border-white/10 hover:border-emerald-500/40 cursor-pointer group transition-all hover:scale-[1.02]"
+                  className="glass-card rounded-2xl overflow-hidden border border-emerald-500/20 hover:border-emerald-500/40 bg-emerald-500/5 cursor-pointer group transition-all hover:scale-[1.02]"
                 >
                   <div className="h-44 bg-gradient-to-br from-emerald-900/30 to-slate-900/50 flex items-center justify-center border-b border-white/5 relative overflow-hidden">
                     {blog.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={blog.imageUrl} alt={blog.title} className="w-full h-full object-cover opacity-80 mix-blend-luminosity group-hover:mix-blend-normal transition-all" />
+                      <img src={blog.imageUrl} alt={blog.title} className="w-full h-full object-cover opacity-90 transition-all" />
                     ) : (
                       <span className="text-7xl opacity-20 group-hover:opacity-40 transition-opacity">🐍</span>
                     )}
@@ -193,9 +193,9 @@ export default function BlogPage() {
                         <span key={tag} className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${TAG_COLORS[j % TAG_COLORS.length]}`}>{tag.trim()}</span>
                       ))}
                     </div>
-                    <h3 className="text-white font-bold text-base mb-2 group-hover:text-emerald-400 transition-colors leading-snug line-clamp-2">{blog.title}</h3>
-                    <p className="text-gray-500 text-xs mb-4 line-clamp-2">{blog.content.slice(0, 100)}...</p>
-                    <div className="flex items-center justify-between text-gray-600 text-xs border-t border-white/5 pt-3">
+                    <h3 className="text-emerald-200 font-bold text-base mb-2 group-hover:text-emerald-400 transition-colors leading-snug line-clamp-2">{blog.title}</h3>
+                    <p className="text-gray-300 text-xs mb-4 line-clamp-2">{blog.content.slice(0, 100)}...</p>
+                    <div className="flex items-center justify-between text-gray-400 text-xs border-t border-white/5 pt-3">
                       <span className="flex items-center gap-1"><User className="w-3 h-3" />{blog.author}</span>
                       <span className="flex items-center gap-1"><BookOpen className="w-3 h-3" />{readTime(blog.content)} min read</span>
                     </div>
