@@ -16,15 +16,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     `.trim();
 
     try {
-      await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: TELEGRAM_CHAT_ID,
-          text: message,
-          parse_mode: 'Markdown',
-        }),
-      });
+      const result = await sendTelegramMessage(message, { parseMode: 'Markdown' });
+      if (!result.success) {
+        console.error('Error sending Telegram alert:', result.error);
+      }
     } catch (error) {
       console.error('Error sending Telegram alert:', error);
     }
