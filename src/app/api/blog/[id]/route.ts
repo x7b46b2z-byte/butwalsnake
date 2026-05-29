@@ -53,8 +53,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     }
 
     if (!result || result.error || !result.data) {
-      console.error('PATCH /api/blog/[id] error:', result.error);
-      return NextResponse.json({ success: false, error: result.error?.message || 'Failed to update blog' }, { status: 500 });
+      const error = result?.error;
+      console.error('PATCH /api/blog/[id] error:', error);
+      return NextResponse.json({ success: false, error: error?.message || 'Failed to update blog' }, { status: 500 });
     }
 
     const row = result.data;
